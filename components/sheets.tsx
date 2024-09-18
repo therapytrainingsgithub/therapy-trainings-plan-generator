@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import { useAppContext } from "@/app/context/appContext";
 
+interface WorksheetIdea {
+  idea: string;
+  content?: string; // Optional, as content may not always be provided
+}
+
 const Sheets = () => {
-  const [worksheetLoading, setWorksheetLoading] = useState(false);
-  const [homeworkLoading, setHomeworkLoading] = useState(false);
-  const [worksheetIdeas, setWorksheetIdeas] = useState<string[]>([]);
-  const [selectedWorksheet, setSelectedWorksheet] = useState<string | null>(
-    null
-  );
+  const [worksheetLoading, setWorksheetLoading] = useState<boolean>(false);
+  const [homeworkLoading, setHomeworkLoading] = useState<boolean>(false);
+  const [worksheetIdeas, setWorksheetIdeas] = useState<WorksheetIdea[]>([]);
+  const [selectedWorksheet, setSelectedWorksheet] =
+    useState<WorksheetIdea | null>(null);
   const [generatedWorksheet, setGeneratedWorksheet] = useState<string>("");
   const [homeworkIdeas, setHomeworkIdeas] = useState<string[]>([]);
   const {
@@ -31,11 +35,11 @@ const Sheets = () => {
     console.log(treatmentPlan);
   };
 
-  const handleSelectWorksheet = (idea: string) => {
+  const handleSelectWorksheet = (idea: WorksheetIdea) => {
     setSelectedWorksheet(idea);
     console.log(idea);
     // Generate worksheet content based on idea
-    const worksheet = idea?.content;
+    const worksheet = idea.content || ""; // Provide default empty string if content is undefined
     setGeneratedWorksheet(worksheet);
   };
 
@@ -48,6 +52,7 @@ const Sheets = () => {
 
   const handleDownloadWorksheet = () => {
     if (
+      selectedWorksheet &&
       typeof selectedWorksheet.content === "string" &&
       selectedWorksheet.content.trim()
     ) {
@@ -62,7 +67,6 @@ const Sheets = () => {
       element.click();
       document.body.removeChild(element);
     } else {
-      console.log(selectedWorksheet.content);
       console.error(
         "Invalid selectedWorksheet. Please select a valid worksheet."
       );
@@ -101,11 +105,8 @@ const Sheets = () => {
           const responseText = await response.json();
           console.log(responseText);
           const data = formatResponse(responseText.completion);
-          const worksheet = data.worksheet[0]?.worksheets;
-          const idea = worksheet.map((idea) => idea.idea);
+          const worksheet = data.worksheet as WorksheetIdea[]; // Type assertion for array
           setWorksheetIdeas(worksheet);
-          console.log(worksheetIdeas);
-          console.log(idea);
         } catch (error) {
           console.error("Error processing response:", error);
         }
@@ -113,7 +114,7 @@ const Sheets = () => {
         console.error("Network response was not ok:", response.statusText);
       }
     } catch (error) {
-      console.error("Error in handleSubmit:", error);
+      console.error("Error in generateWorksheet:", error);
     } finally {
       setWorksheetLoading(false);
     }
@@ -141,7 +142,8 @@ const Sheets = () => {
         try {
           // Get the response text
           const responseText = await response.json();
-          const data = JSON.parse(responseText.completion)?.homework;
+          const data = JSON.parse(responseText.completion)
+            ?.homework as string[]; // Type assertion for array
           setHomeworkIdeas(data);
         } catch (error) {
           console.error("Error processing response:", error);
@@ -150,7 +152,7 @@ const Sheets = () => {
         console.error("Network response was not ok:", response.statusText);
       }
     } catch (error) {
-      console.error("Error in handleSubmit:", error);
+      console.error("Error in generateHomework:", error);
     } finally {
       setHomeworkLoading(false);
     }
@@ -158,7 +160,7 @@ const Sheets = () => {
 
   function formatResponse(responseText: string) {
     // Define a regular expression to match JSON data between curly braces
-    const jsonMatch = responseText.match(/\{.*\}/s);
+    const jsonMatch = responseText.match(/\{.*\}/);
 
     if (!jsonMatch) {
       throw new Error("No JSON data found in the response");
@@ -275,11 +277,13 @@ const Sheets = () => {
                   </div>
                 )}
 
-                {/* Show homework ideas once loaded */}
+                {/* Show homework ideas if available */}
                 {homeworkIdeas.length > 0 && (
-                  <ul className="mt-2 list-disc list-inside">
-                    {homeworkIdeas.map((idea) => (
-                      <li key={idea}>{idea}</li>
+                  <ul className="mt-2">
+                    {homeworkIdeas.map((idea, index) => (
+                      <li key={index} className="mb-2 p-2 border rounded-md">
+                        {idea}
+                      </li>
                     ))}
                   </ul>
                 )}

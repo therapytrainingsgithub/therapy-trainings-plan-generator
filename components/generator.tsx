@@ -7,6 +7,11 @@ interface Disorder {
   symptoms: string[];
 }
 
+interface Goal {
+  goal: string;
+  objectives: string[];
+}
+
 const disorders: Disorder[] = [
   // Schizophrenia Spectrum and Other Primary Psychotic Disorders
   {
@@ -367,20 +372,21 @@ const treatmentApproaches: string[] = [
 const Generator = () => {
   const [goalLoading, setGoalLoading] = useState(false);
   const [symptoms, setSymptoms] = useState<string[]>([]);
-  const [goals, setGoals] = useState<string[]>([]);
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [selectedDisorder, setSelectedDisorder] = useState<string | null>(null);
+  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
+  const [selectedApproach, setSelectedApproach] = useState<string | null>(null);
+  const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
+  const [selectedObjectives, setSelectedObjectives] = useState<string[]>([]);
+  const [allObjectives, setAllObjectives] = useState<string[]>([]);
+
   const {
-    selectedDisorder,
-    setSelectedDisorder,
-    selectedSymptoms,
-    setSelectedSymptoms,
-    selectedApproach,
-    setSelectedApproach,
-    selectedGoals,
-    setSelectedGoals,
-    selectedObjectives,
-    setSelectedObjectives,
-    allObjectives,
-    setAllObjectives,
+    setSelectedDisorder: setContextSelectedDisorder,
+    setSelectedSymptoms: setContextSelectedSymptoms,
+    setSelectedApproach: setContextSelectedApproach,
+    setSelectedGoals: setContextSelectedGoals,
+    setSelectedObjectives: setContextSelectedObjectives,
+    setAllObjectives: setContextAllObjectives,
   } = useAppContext();
 
   const handleDisorderSelect = (
@@ -392,9 +398,10 @@ const Generator = () => {
       (disorder) => disorder.name === disorderName
     );
     setSymptoms(selectedDisorder ? selectedDisorder.symptoms : []);
-    setSelectedApproach(null); // Reset selected approach when disorder changes
-    setSelectedGoals([]);
-    setSelectedObjectives([]);
+    setContextSelectedDisorder(disorderName);
+    setContextSelectedApproach(null); // Reset selected approach when disorder changes
+    setContextSelectedGoals([]);
+    setContextSelectedObjectives([]);
   };
 
   const handleSymptomToggle = (symptom: string) => {
@@ -410,50 +417,47 @@ const Generator = () => {
   ) => {
     const approach = event.target.value;
     setSelectedApproach(approach);
-    setSelectedGoals([]);
-    setSelectedObjectives([]);
+    setContextSelectedApproach(approach);
+    setContextSelectedGoals([]);
+    setContextSelectedObjectives([]);
   };
 
   useEffect(() => {
     if (selectedApproach) {
       generateGoalsObjectives();
     }
-  }, [selectedApproach]); // Trigger only when selectedApproach changes
+  }, [selectedApproach]);
 
-  const handleGoalSelect = (goal: { goal: string; objectives: string[] }) => {
+  const handleGoalSelect = (goal: Goal) => {
     setSelectedGoals((prev) => {
-      // Toggle goal selection
       const updatedGoals = prev.includes(goal.goal)
         ? prev.filter((g) => g !== goal.goal)
         : [...prev, goal.goal];
 
-      // Update objectives to include objectives from all selected goals
       const newObjectives = updatedGoals.flatMap(
         (g) => goals.find((gObj) => gObj.goal === g)?.objectives || []
       );
       setAllObjectives(newObjectives);
 
-      // Clear selected objectives if their current values are not in the new list
-      setSelectedObjectives(prev.filter((o) => newObjectives.includes(o)));
+      setSelectedObjectives((prev) =>
+        prev.filter((o) => newObjectives.includes(o))
+      );
 
-      // Return updated goals
       return updatedGoals;
     });
   };
 
   const handleObjectiveSelect = (objective: string) => {
-    setSelectedObjectives((prev) => {
-      // Toggle objective selection
-      return prev.includes(objective)
+    setSelectedObjectives((prev) =>
+      prev.includes(objective)
         ? prev.filter((o) => o !== objective)
-        : [...prev, objective];
-    });
+        : [...prev, objective]
+    );
   };
 
   const generateGoalsObjectives = async () => {
     try {
       setGoalLoading(true);
-      // Send the POST request
       const response = await fetch("/api/postDisorder", {
         method: "POST",
         headers: {
@@ -466,10 +470,8 @@ const Generator = () => {
         }),
       });
 
-      // Check if the response is OK
       if (response.ok) {
         try {
-          // Get the response text
           const responseText = await response.json();
           const data = formatResponse(responseText.completion);
           setGoals(data.goals);
@@ -486,18 +488,15 @@ const Generator = () => {
     }
   };
 
-  function formatResponse(responseText: string) {
-    // Define a regular expression to match JSON data between curly braces
-    const jsonMatch = responseText.match(/\{.*\}/s);
+  function formatResponse(responseText: string): { goals: Goal[] } {
+    const jsonMatch = responseText.match(/\{.*\}/);
 
     if (!jsonMatch) {
       throw new Error("No JSON data found in the response");
     }
 
-    // Extract the JSON string from the match
     const jsonString = jsonMatch[0];
 
-    // Parse the JSON string into an object
     try {
       const jsonData = JSON.parse(jsonString);
       return jsonData;
@@ -514,6 +513,7 @@ const Generator = () => {
           <select
             onChange={handleDisorderSelect}
             className="w-[50%] mt-2 p-2 border rounded"
+            value={selectedDisorder || ""}
           >
             <option value="">Select a disorder</option>
             {disorders.map((disorder) => (
@@ -524,7 +524,6 @@ const Generator = () => {
           </select>
         </div>
 
-        {/* Symptom Selection */}
         {selectedDisorder && symptoms.length > 0 && (
           <div className="mb-4">
             <h3 className="font-bold">Symptoms</h3>
@@ -544,7 +543,6 @@ const Generator = () => {
           </div>
         )}
 
-        {/* Treatment Approach Selection */}
         {selectedSymptoms.length > 0 && (
           <div className="mb-4 flex flex-col">
             <label className="font-bold">Treatment Approaches</label>
@@ -578,7 +576,7 @@ const Generator = () => {
                 </div>
               </div>
             ) : (
-              goals?.map((goalObj) => (
+              goals.map((goalObj) => (
                 <button
                   key={goalObj.goal}
                   onClick={() => handleGoalSelect(goalObj)}
@@ -595,23 +593,23 @@ const Generator = () => {
           </div>
         )}
 
-        {/* Objective Selection */}
         {selectedGoals.length > 0 && (
           <div className="mb-4">
             <h3 className="font-bold">Objectives</h3>
-            {allObjectives?.map((objective) => (
-              <button
-                key={objective}
-                onClick={() => handleObjectiveSelect(objective)}
-                className={`mr-2 mb-2 p-2 border rounded-md transition-colors duration-200 ${
-                  selectedObjectives.includes(objective)
-                    ? "bg-[#709d50] text-white hover:bg-[#50822d]"
-                    : "bg-gray-200 hover:bg-gray-300"
-                }`}
-              >
-                {objective}
-              </button>
-            ))}
+            {allObjectives.length > 0 &&
+              allObjectives.map((objective) => (
+                <button
+                  key={objective}
+                  onClick={() => handleObjectiveSelect(objective)}
+                  className={`mr-2 mb-2 p-2 border rounded-md transition-colors duration-200 ${
+                    selectedObjectives.includes(objective)
+                      ? "bg-[#709d50] text-white hover:bg-[#50822d]"
+                      : "bg-gray-200 hover:bg-gray-300"
+                  }`}
+                >
+                  {objective}
+                </button>
+              ))}
           </div>
         )}
       </div>
