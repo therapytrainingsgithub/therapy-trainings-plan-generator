@@ -385,7 +385,7 @@ const Generator: React.FC = () => {
     allObjectives,
     setAllObjectives,
     setShowSummary,
-    setShowSheets
+    setShowSheets,
   } = useAppContext();
 
   const [symptoms, setSymptoms] = useState<string[]>([]);
@@ -452,8 +452,8 @@ const Generator: React.FC = () => {
         ? prev.filter((o) => o !== objective)
         : [...prev, objective]
     );
-    setShowSummary(true)
-    setShowSheets(true)
+    setShowSummary(true);
+    setShowSheets(true);
   };
 
   const generateGoalsObjectives = async () => {
@@ -509,10 +509,12 @@ const Generator: React.FC = () => {
           <label className="font-bold">Disorders</label>
           <select
             onChange={(e) => setSelectedDisorder(e.target.value)}
-            className="w-[50%] mt-2 p-2 border rounded"
+            className="w-full md:w-[50%] mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150 ease-in-out"
             value={selectedDisorder || ""}
           >
-            <option value="">Select a disorder</option>
+            <option value="" disabled>
+              Select a disorder
+            </option>
             {disorders.map((disorder) => (
               <option key={disorder.id} value={disorder.name}>
                 {disorder.name}
@@ -523,7 +525,14 @@ const Generator: React.FC = () => {
 
         {selectedDisorder && symptoms.length > 0 && (
           <div className="mb-4">
-            <h3 className="font-bold">Symptoms</h3>
+            <div className="flex justify-between items-center">
+              <h3 className="font-bold">Symptoms</h3>
+              {selectedSymptoms.length === 0 && (
+                <h3 className="font-semibold text-red-500 text-sm">
+                  Please Select Symptoms
+                </h3>
+              )}
+            </div>
             {symptoms.map((symptom) => (
               <button
                 key={symptom}
@@ -560,7 +569,14 @@ const Generator: React.FC = () => {
 
         {selectedApproach && (
           <div className="mb-4">
-            <h3 className="font-bold">Goals</h3>
+            <div className="flex justify-between items-center">
+              <h3 className="font-bold">Goals</h3>
+              {goalLoading === false && selectedGoals.length === 0 && (
+                <h3 className="font-semibold text-red-500 text-sm">
+                  Please Select Goals
+                </h3>
+              )}
+            </div>
             {goalLoading ? (
               <div className="flex justify-center items-center">
                 <div
@@ -592,7 +608,14 @@ const Generator: React.FC = () => {
 
         {selectedGoals.length > 0 && (
           <div className="mb-4">
+            <div className="flex justify-between">
             <h3 className="font-bold">Objectives</h3>
+            {selectedObjectives.length === 0 && (
+                <h3 className="font-semibold text-red-500 text-sm">
+                  Please Select Objectives
+                </h3>
+              )}
+            </div>
             {allObjectives.length > 0 &&
               allObjectives.map((objective) => (
                 <button

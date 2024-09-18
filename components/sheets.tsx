@@ -61,11 +61,26 @@ const Sheets = () => {
       // Create a new jsPDF instance
       const doc = new jsPDF();
 
-      // Add content to the PDF
-      doc.text(selectedWorksheet.content, 10, 10);
+      // Set font size
+      doc.setFontSize(12);
 
-      // Save the PDF with a filename
-      doc.save(`${selectedWorksheet.content.replace(/\s+/g, "_")}.pdf`);
+      // Add some padding and wrap the text within the page's width
+      const content = selectedWorksheet.content;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const margin = 10;
+      const maxLineWidth = pageWidth - margin * 2;
+
+      // Split the content into multiple lines to fit within the page width
+      const splitContent = doc.splitTextToSize(content, maxLineWidth);
+
+      // Add the formatted text to the PDF
+      doc.text(splitContent, margin, 20); // Adjust starting position
+
+      // Save the PDF with a filename, using content for naming
+      const fileName = selectedWorksheet.content
+        .substring(0, 20)
+        .replace(/\s+/g, "_");
+      doc.save(`${fileName}.pdf`);
     } else {
       console.error(
         "Invalid selectedWorksheet. Please select a valid worksheet."
@@ -214,7 +229,7 @@ const Sheets = () => {
                       <button
                         key={index}
                         onClick={() => handleSelectWorksheet(idea)}
-                        className="p-4 bg-[#709d50] text-white rounded-lg shadow-md hover:bg-[#50822d] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#50822d] focus:ring-opacity-50"
+                        className="p-2 bg-[#709d50] text-white rounded-md shadow-md hover:bg-[#50822d] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#50822d] focus:ring-opacity-50"
                       >
                         {idea.idea}
                       </button>
