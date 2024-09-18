@@ -489,7 +489,7 @@ const Generator = () => {
   };
 
   function formatResponse(responseText: string): { goals: Goal[] } {
-    const jsonMatch = responseText.match(/\{.*\}/);
+    const jsonMatch = responseText.match(/\{.*\}/s);
 
     if (!jsonMatch) {
       throw new Error("No JSON data found in the response");

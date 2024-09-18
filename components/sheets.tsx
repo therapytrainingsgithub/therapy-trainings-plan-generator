@@ -160,7 +160,7 @@ const Sheets = () => {
 
   function formatResponse(responseText: string) {
     // Define a regular expression to match JSON data between curly braces
-    const jsonMatch = responseText.match(/\{.*\}/);
+    const jsonMatch = responseText.match(/\{.*\}/s);
 
     if (!jsonMatch) {
       throw new Error("No JSON data found in the response");
