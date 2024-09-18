@@ -24,6 +24,7 @@ const Sheets = () => {
     allObjectives,
     showSheets,
   } = useAppContext();
+  const [selectedIdea, setSelectedIdea] = useState<WorksheetIdea | null>(null);
 
   const handleGenerateWorksheetIdeas = () => {
     generateWorksheet();
@@ -39,10 +40,8 @@ const Sheets = () => {
 
   const handleSelectWorksheet = (idea: WorksheetIdea) => {
     setSelectedWorksheet(idea);
-    console.log(idea);
-    // Generate worksheet content based on idea
-    const worksheet = idea.content || ""; // Provide default empty string if content is undefined
-    setGeneratedWorksheet(worksheet);
+    setGeneratedWorksheet(idea.content || "");
+    setSelectedIdea(idea);
   };
 
   const handleCopyWorksheet = () => {
@@ -58,25 +57,14 @@ const Sheets = () => {
       typeof selectedWorksheet.content === "string" &&
       selectedWorksheet.content.trim()
     ) {
-      // Create a new jsPDF instance
       const doc = new jsPDF();
-
-      // Set font size
       doc.setFontSize(12);
-
-      // Add some padding and wrap the text within the page's width
       const content = selectedWorksheet.content;
       const pageWidth = doc.internal.pageSize.getWidth();
       const margin = 10;
       const maxLineWidth = pageWidth - margin * 2;
-
-      // Split the content into multiple lines to fit within the page width
       const splitContent = doc.splitTextToSize(content, maxLineWidth);
-
-      // Add the formatted text to the PDF
-      doc.text(splitContent, margin, 20); // Adjust starting position
-
-      // Save the PDF with a filename, using content for naming
+      doc.text(splitContent, margin, 20);
       const fileName = selectedWorksheet.content
         .substring(0, 20)
         .replace(/\s+/g, "_");
@@ -104,7 +92,6 @@ const Sheets = () => {
     };
     try {
       setWorksheetLoading(true);
-      // Send the POST request
       const response = await fetch("/api/getWorksheet", {
         method: "POST",
         headers: {
@@ -113,15 +100,11 @@ const Sheets = () => {
         body: JSON.stringify({ treatmentPlan }),
       });
 
-      // Check if the response is OK
       if (response.ok) {
         try {
-          // Get the response text
           const responseText = await response.json();
-          console.log(responseText);
           const data = formatResponse(responseText.completion);
-          const worksheet = data.worksheet[0].worksheets as WorksheetIdea[]; // Type assertion for array
-          console.log(worksheet);
+          const worksheet = data.worksheet[0].worksheets as WorksheetIdea[];
           setWorksheetIdeas(worksheet);
         } catch (error) {
           console.error("Error processing response:", error);
@@ -146,7 +129,6 @@ const Sheets = () => {
     };
     try {
       setHomeworkLoading(true);
-      // Send the POST request
       const response = await fetch("/api/getHomework", {
         method: "POST",
         headers: {
@@ -156,11 +138,9 @@ const Sheets = () => {
       });
       if (response.ok) {
         try {
-          // Get the response text
           const responseText = await response.json();
           const data = formatResponse(responseText.completion)
-            ?.homework as string[]; // Type assertion for array
-          console.log(data);
+            ?.homework as string[];
           setHomeworkIdeas(data);
         } catch (error) {
           console.error("Error processing response:", error);
@@ -208,7 +188,6 @@ const Sheets = () => {
                   Generate Worksheet Ideas
                 </button>
 
-                {/* Show loading spinner if worksheetLoading is true */}
                 {worksheetLoading && (
                   <div className="flex justify-center items-center">
                     <div
@@ -222,14 +201,17 @@ const Sheets = () => {
                   </div>
                 )}
 
-                {/* Show worksheet ideas if available */}
                 {worksheetIdeas.length > 0 && (
                   <div className="mt-4 space-y-4 md:space-y-0 md:space-x-4 md:flex">
                     {worksheetIdeas.map((idea, index) => (
                       <button
                         key={index}
                         onClick={() => handleSelectWorksheet(idea)}
-                        className="p-2 bg-[#709d50] text-white rounded-md shadow-md hover:bg-[#50822d] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#50822d] focus:ring-opacity-50"
+                        className={`p-2 rounded-md shadow-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
+                          selectedIdea === idea
+                            ? "bg-[#709d50] text-white hover:bg-[#50822d] focus:ring-[#50822d]"
+                            : "bg-gray-200 hover:bg-gray-400 focus:ring-gray-400"
+                        }`}
                       >
                         {idea.idea}
                       </button>
@@ -277,7 +259,6 @@ const Sheets = () => {
                   Generate Homework Ideas
                 </button>
 
-                {/* Show loading spinner if homework is loading */}
                 {homeworkLoading && (
                   <div className="flex justify-center items-center">
                     <div
@@ -291,11 +272,10 @@ const Sheets = () => {
                   </div>
                 )}
 
-                {/* Show homework ideas if available */}
                 {homeworkIdeas.length > 0 && (
-                  <ul className="mt-2 list-disc pl-5">
+                  <ul className="list-disc pl-5">
                     {homeworkIdeas.map((idea, index) => (
-                      <li key={index} className="p-2">
+                      <li key={index} className="py-1">
                         {idea}
                       </li>
                     ))}

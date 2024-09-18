@@ -371,6 +371,7 @@ const treatmentApproaches: string[] = [
 
 const Generator: React.FC = () => {
   const [goalLoading, setGoalLoading] = useState<boolean>(false);
+  const [objectiveLoading, setObjectiveLoading] = useState<boolean>(false);
   const {
     selectedDisorder,
     setSelectedDisorder,
@@ -502,6 +503,49 @@ const Generator: React.FC = () => {
     }
   }
 
+  const refreshObjectives = async () => {
+    try {
+      setObjectiveLoading(true);
+
+      // Send request to fetch new goals and objectives
+      const response = await fetch("/api/postDisorder", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          disorder: selectedDisorder,
+          symptoms: selectedSymptoms,
+          treatment_approach: selectedApproach,
+          existing_Goals_Objectives: goals,
+        }),
+      });
+
+      if (response.ok) {
+        const responseText = await response.json();
+        const data = formatResponse(responseText.completion);
+
+        // Update goals
+        setGoals(data.goals);
+
+        // Extract and update new objectives
+        const newObjectives = data.goals.flatMap((goal) => goal.objectives);
+        setAllObjectives(newObjectives);
+
+        // Keep only the selected objectives that are still valid
+        setSelectedObjectives((prev) =>
+          prev.filter((objective) => newObjectives.includes(objective))
+        );
+      } else {
+        console.error("Network response was not ok:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error in refreshObjectives:", error);
+    } finally {
+      setObjectiveLoading(false);
+    }
+  };
+
   return (
     <main className="space-y-5 flex justify-center">
       <div className="bg-white p-6 rounded-md shadow-lg w-[70%]">
@@ -525,7 +569,7 @@ const Generator: React.FC = () => {
 
         {selectedDisorder && symptoms.length > 0 && (
           <div className="mb-4">
-            <div className="flex justify-between items-center">
+            <div className="flex space-x-4">
               <h3 className="font-bold">Symptoms</h3>
               {selectedSymptoms.length === 0 && (
                 <h3 className="font-semibold text-red-500 text-sm">
@@ -569,7 +613,7 @@ const Generator: React.FC = () => {
 
         {selectedApproach && (
           <div className="mb-4">
-            <div className="flex justify-between items-center">
+            <div className="flex space-x-4">
               <h3 className="font-bold">Goals</h3>
               {goalLoading === false && selectedGoals.length === 0 && (
                 <h3 className="font-semibold text-red-500 text-sm">
@@ -608,28 +652,53 @@ const Generator: React.FC = () => {
 
         {selectedGoals.length > 0 && (
           <div className="mb-4">
-            <div className="flex justify-between">
-            <h3 className="font-bold">Objectives</h3>
-            {selectedObjectives.length === 0 && (
-                <h3 className="font-semibold text-red-500 text-sm">
-                  Please Select Objectives
-                </h3>
-              )}
+            <div className="flex space-x-4 items-center">
+              <h3 className="font-bold">Objectives</h3>
+              {objectiveLoading === false &&
+                selectedObjectives.length === 0 && (
+                  <h3 className="font-semibold text-red-500 text-sm">
+                    Please Select Objectives
+                  </h3>
+                )}
             </div>
-            {allObjectives.length > 0 &&
-              allObjectives.map((objective) => (
-                <button
-                  key={objective}
-                  onClick={() => handleObjectiveSelect(objective)}
-                  className={`mr-2 mb-2 p-2 border rounded-md transition-colors duration-200 ${
-                    selectedObjectives.includes(objective)
-                      ? "bg-[#709d50] text-white hover:bg-[#50822d]"
-                      : "bg-gray-200 hover:bg-gray-300"
-                  }`}
+            {objectiveLoading ? (
+              <div className="flex justify-center items-center">
+                <div
+                  className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-black motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                  role="status"
                 >
-                  {objective}
-                </button>
-              ))}
+                  <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+                    Loading...
+                  </span>
+                </div>
+              </div>
+            ) : (
+              allObjectives.length > 0 && (
+                <div className="mt-2">
+                  {allObjectives.map((objective) => (
+                    <button
+                      key={objective}
+                      onClick={() => handleObjectiveSelect(objective)}
+                      className={`mr-2 mb-2 p-2 border rounded-md transition-colors duration-200 ${
+                        selectedObjectives.includes(objective)
+                          ? "bg-[#709d50] text-white hover:bg-[#50822d]"
+                          : "bg-gray-200 hover:bg-gray-300"
+                      }`}
+                    >
+                      {objective}
+                    </button>
+                  ))}
+                </div>
+              )
+            )}
+            <div className="mt-4">
+              <button
+                onClick={() => refreshObjectives()}
+                className="p-2 bg-[#709d50] text-white rounded-md hover:bg-[#50822d] transition-colors duration-200"
+              >
+                Refresh Objectives
+              </button>
+            </div>
           </div>
         )}
       </div>
