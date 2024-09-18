@@ -203,7 +203,7 @@ const Sheets = () => {
                 <h3 className="font-bold">Worksheet Ideas</h3>
                 <button
                   onClick={handleGenerateWorksheetIdeas}
-                  className="p-2 bg-green-500 text-white rounded"
+                  className="p-2 bg-[#50822d] text-white rounded"
                 >
                   Generate Worksheet Ideas
                 </button>
@@ -272,7 +272,7 @@ const Sheets = () => {
                 <h3 className="font-bold">Homework Ideas</h3>
                 <button
                   onClick={handleGenerateHomeworkIdeas}
-                  className="p-2 bg-green-500 text-white rounded"
+                  className="p-2 bg-[#50822d] text-white rounded"
                 >
                   Generate Homework Ideas
                 </button>
