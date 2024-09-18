@@ -82,12 +82,8 @@ const Page = () => {
         </div>
 
         {/* footer */}
-        <div className="flex justify-between">
-          <div>Copyright © 2024 TherapyTrainings. All rights reserved.</div>
-          <div className="flex space-x-5">
-            <div>Terms</div>
-            <div>Privacy</div>
-          </div>
+        <div className="flex flex-start">
+          <div>©Copyright Therapy Trainings™</div>
         </div>
       </div>
     </main>

@@ -1,43 +1,33 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import ClinicalLogs from "@/components/clinicalLogs";
-import Header from "@/components/header";
-import Overview from "@/components/overview";
-import SupervisionLogs from "@/components/supervisionLogs";
-import AppProviders from "./context";
-import { useUserProfileContext } from "./context/userProfileContext";
-import SupervisorUsers from "@/components/supervisorUsers";
-import SupervisorRequest from "@/components/supervisorRequest";
-import AdminUsers from "@/components/adminUsers";
-import AdminSupervisor from "@/components/adminSupervisor";
 import { ToastContainer } from "react-toastify";
+import Header from "@/components/header";
+import TreatmentPlanGenerator from "@/components/treatmentPlanGenerator";
+import { AppProvider } from "./context/appContext";
 
 export default function Home() {
   return (
-    <AppProviders>
-      <ToastContainer />
-      <HomeContent />
-    </AppProviders>
+    <>
+      <AppProvider>
+        <ToastContainer />
+        <HomeContent />
+      </AppProvider>
+    </>
   );
 }
 
 function HomeContent() {
   const [loading, setLoading] = useState(true);
-  const { userRole } = useUserProfileContext();
 
   useEffect(() => {
-    // Assume the data fetching logic is here, which sets the user role
-    // Simulating an API call with a timeout
     const fetchData = async () => {
       try {
-        // Simulate the time it takes to fetch the user role
-        await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulating API delay
-        // Assuming the userRole is set after fetching the data
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        setLoading(false); // Stop the loader when data is fetched
+        setLoading(false);
       }
     };
 
@@ -59,24 +49,12 @@ function HomeContent() {
 
   return (
     <>
-      <Header />
-      <main className="py-5 px-10 space-y-10 bg-[#f5f5f5] font-roboto">
-        {/* user UI */}
-        {userRole === "user" && <Overview />}
-        {userRole === "user" && <ClinicalLogs />}
-        {userRole === "user" && <SupervisionLogs />}
-
-        {/* supervisor UI */}
-        {userRole === "supervisor" && <Overview />}
-        {userRole === "supervisor" && <ClinicalLogs />}
-        {userRole === "supervisor" && <SupervisionLogs />}
-        {userRole === "supervisor" && <SupervisorUsers />}
-        {userRole === "supervisor" && <SupervisorRequest />}
-
-        {/* admin UI */}
-        {userRole === "admin" && <AdminUsers />}
-        {userRole === "admin" && <AdminSupervisor />}
-      </main>
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow py-5 px-10 space-y-10 bg-[#f5f5f5] font-roboto">
+          <TreatmentPlanGenerator />
+        </main>
+      </div>
     </>
   );
 }

@@ -1,13 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { useUserProfileContext } from "@/app/context/userProfileContext";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null); // Explicitly type the ref
   const router = useRouter();
-  const { userName } = useUserProfileContext();
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -43,7 +41,7 @@ const Header = () => {
   }, [dropdownRef]);
 
   const goToSettings = () => {
-    console.log("here")
+    console.log("here");
     router.push("/settings");
   };
 
@@ -97,10 +95,10 @@ const Header = () => {
         </div>
         <div className="relative z-10">
           <h1 className="text-[32px] font-bold font-roboto">
-            {`Welcome ${userName ? userName : "Guest"}!`}
+            Welcome Guest
           </h1>
           <p className="text-[24px] font-regular">
-            Your Therapy Tracking portal.
+            Your Treatment Plan Generator.
           </p>
         </div>
       </div>
