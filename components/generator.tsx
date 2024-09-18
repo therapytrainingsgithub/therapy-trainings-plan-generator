@@ -489,14 +489,15 @@ const Generator = () => {
   };
 
   function formatResponse(responseText: string): { goals: Goal[] } {
-    const jsonMatch = responseText.match(/\{.*\}/s);
-
+    // Match JSON data using a more traditional approach
+    const jsonMatch = responseText.match(/\{[^]*?\}/);
+  
     if (!jsonMatch) {
       throw new Error("No JSON data found in the response");
     }
-
+  
     const jsonString = jsonMatch[0];
-
+  
     try {
       const jsonData = JSON.parse(jsonString);
       return jsonData;
@@ -504,6 +505,7 @@ const Generator = () => {
       throw new Error("Error parsing JSON data");
     }
   }
+  
 
   return (
     <main className="space-y-5 flex justify-center">
