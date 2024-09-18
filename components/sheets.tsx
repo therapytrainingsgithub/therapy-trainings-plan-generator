@@ -21,7 +21,7 @@ const Sheets = () => {
     selectedGoals,
     selectedObjectives,
     allObjectives,
-    showSheets
+    showSheets,
   } = useAppContext();
 
   const handleGenerateWorksheetIdeas = () => {
@@ -107,7 +107,7 @@ const Sheets = () => {
           console.log(responseText);
           const data = formatResponse(responseText.completion);
           const worksheet = data.worksheet[0].worksheets as WorksheetIdea[]; // Type assertion for array
-          console.log(worksheet)
+          console.log(worksheet);
           setWorksheetIdeas(worksheet);
         } catch (error) {
           console.error("Error processing response:", error);
@@ -144,8 +144,9 @@ const Sheets = () => {
         try {
           // Get the response text
           const responseText = await response.json();
-          const data = JSON.parse(responseText.completion)
+          const data = formatResponse(responseText.completion)
             ?.homework as string[]; // Type assertion for array
+          console.log(data);
           setHomeworkIdeas(data);
         } catch (error) {
           console.error("Error processing response:", error);
@@ -161,25 +162,17 @@ const Sheets = () => {
   };
 
   function formatResponse(responseText: string): any {
-    // Extract JSON part from the text using a more precise regex
-    const jsonMatch = responseText.match(/```json\s*([\s\S]*?)```/);
+    const start = responseText.indexOf("{");
+    const end = responseText.lastIndexOf("}") + 1;
 
-    if (!jsonMatch) {
+    if (start === -1 || end === -1) {
       throw new Error("No JSON data found in the response");
     }
 
-    const jsonString = jsonMatch[1].trim();
+    const jsonString = responseText.substring(start, end);
 
     try {
-      const jsonData = JSON.parse(jsonString);
-
-      // Ensure it's a valid JSON object or array
-      if (typeof jsonData === "object" && jsonData !== null) {
-        console.log(jsonData)
-        return jsonData;
-      } else {
-        throw new Error("Parsed JSON is not an object or array");
-      }
+      return JSON.parse(jsonString);
     } catch (error) {
       throw new Error("Error parsing JSON data");
     }
@@ -217,7 +210,7 @@ const Sheets = () => {
 
                 {/* Show worksheet ideas if available */}
                 {worksheetIdeas.length > 0 && (
-                  <div className="mt-2 sm:space-x-2 sm:space-y-0 space-y-2">
+                  <div className="mt-2 md:space-x-2 md:space-y-0 space-y-2">
                     {worksheetIdeas.map((idea, index) => (
                       <button
                         key={index}
@@ -286,9 +279,9 @@ const Sheets = () => {
 
                 {/* Show homework ideas if available */}
                 {homeworkIdeas.length > 0 && (
-                  <ul className="mt-2">
+                  <ul className="mt-2 list-disc pl-5">
                     {homeworkIdeas.map((idea, index) => (
-                      <li key={index} className="mb-2 p-2 border rounded-md">
+                      <li key={index} className="p-2">
                         {idea}
                       </li>
                     ))}
