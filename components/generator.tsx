@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useAppContext } from "../app/context/appContext";
 
+interface Goal {
+  goal: string;
+  objectives: string[];
+}
+
 interface Disorder {
   id: string;
   name: string;
   symptoms: string[];
-}
-
-interface Goal {
-  goal: string;
-  objectives: string[];
 }
 
 const disorders: Disorder[] = [
@@ -369,40 +369,46 @@ const treatmentApproaches: string[] = [
   "Medication management",
 ];
 
-const Generator = () => {
-  const [goalLoading, setGoalLoading] = useState(false);
-  const [symptoms, setSymptoms] = useState<string[]>([]);
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [selectedDisorder, setSelectedDisorder] = useState<string | null>(null);
-  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
-  const [selectedApproach, setSelectedApproach] = useState<string | null>(null);
-  const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
-  const [selectedObjectives, setSelectedObjectives] = useState<string[]>([]);
-  const [allObjectives, setAllObjectives] = useState<string[]>([]);
-
+const Generator: React.FC = () => {
+  const [goalLoading, setGoalLoading] = useState<boolean>(false);
   const {
-    setSelectedDisorder: setContextSelectedDisorder,
-    setSelectedSymptoms: setContextSelectedSymptoms,
-    setSelectedApproach: setContextSelectedApproach,
-    setSelectedGoals: setContextSelectedGoals,
-    setSelectedObjectives: setContextSelectedObjectives,
-    setAllObjectives: setContextAllObjectives,
+    selectedDisorder,
+    setSelectedDisorder,
+    selectedSymptoms,
+    setSelectedSymptoms,
+    selectedApproach,
+    setSelectedApproach,
+    selectedGoals,
+    setSelectedGoals,
+    selectedObjectives,
+    setSelectedObjectives,
+    allObjectives,
+    setAllObjectives,
+    setShowSummary,
+    setShowSheets
   } = useAppContext();
 
-  const handleDisorderSelect = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const disorderName = event.target.value;
-    setSelectedDisorder(disorderName);
-    const selectedDisorder = disorders.find(
-      (disorder) => disorder.name === disorderName
-    );
-    setSymptoms(selectedDisorder ? selectedDisorder.symptoms : []);
-    setContextSelectedDisorder(disorderName);
-    setContextSelectedApproach(null); // Reset selected approach when disorder changes
-    setContextSelectedGoals([]);
-    setContextSelectedObjectives([]);
-  };
+  const [symptoms, setSymptoms] = useState<string[]>([]);
+  const [goals, setGoals] = useState<Goal[]>([]);
+
+  useEffect(() => {
+    if (selectedDisorder) {
+      const disorder = disorders.find((d) => d.name === selectedDisorder);
+      if (disorder) {
+        setSymptoms(disorder.symptoms);
+        setSelectedSymptoms([]); // Clear previously selected symptoms
+      }
+    } else {
+      setSymptoms([]);
+      setSelectedSymptoms([]);
+    }
+  }, [selectedDisorder, setSelectedSymptoms]);
+
+  useEffect(() => {
+    if (selectedApproach) {
+      generateGoalsObjectives();
+    }
+  }, [selectedApproach, selectedDisorder]); // Added selectedDisorder as dependency
 
   const handleSymptomToggle = (symptom: string) => {
     setSelectedSymptoms((prevSymptoms) =>
@@ -417,16 +423,9 @@ const Generator = () => {
   ) => {
     const approach = event.target.value;
     setSelectedApproach(approach);
-    setContextSelectedApproach(approach);
-    setContextSelectedGoals([]);
-    setContextSelectedObjectives([]);
+    setAllObjectives([]);
+    setSelectedObjectives([]);
   };
-
-  useEffect(() => {
-    if (selectedApproach) {
-      generateGoalsObjectives();
-    }
-  }, [selectedApproach]);
 
   const handleGoalSelect = (goal: Goal) => {
     setSelectedGoals((prev) => {
@@ -453,6 +452,8 @@ const Generator = () => {
         ? prev.filter((o) => o !== objective)
         : [...prev, objective]
     );
+    setShowSummary(true)
+    setShowSheets(true)
   };
 
   const generateGoalsObjectives = async () => {
@@ -464,48 +465,42 @@ const Generator = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          disorders: selectedDisorder,
+          disorder: selectedDisorder,
           symptoms: selectedSymptoms,
           treatment_approach: selectedApproach,
         }),
       });
 
       if (response.ok) {
-        try {
-          const responseText = await response.json();
-          const data = formatResponse(responseText.completion);
-          setGoals(data.goals);
-        } catch (error) {
-          console.error("Error processing response:", error);
-        }
+        const responseText = await response.json();
+        const data = formatResponse(responseText.completion);
+        setGoals(data.goals);
       } else {
         console.error("Network response was not ok:", response.statusText);
       }
     } catch (error) {
-      console.error("Error in handleSubmit:", error);
+      console.error("Error in generateGoalsObjectives:", error);
     } finally {
       setGoalLoading(false);
     }
   };
 
   function formatResponse(responseText: string): { goals: Goal[] } {
-    // Match JSON data using a more traditional approach
-    const jsonMatch = responseText.match(/\{[^]*?\}/);
-  
-    if (!jsonMatch) {
+    const start = responseText.indexOf("{");
+    const end = responseText.lastIndexOf("}") + 1;
+
+    if (start === -1 || end === -1) {
       throw new Error("No JSON data found in the response");
     }
-  
-    const jsonString = jsonMatch[0];
-  
+
+    const jsonString = responseText.substring(start, end);
+
     try {
-      const jsonData = JSON.parse(jsonString);
-      return jsonData;
+      return JSON.parse(jsonString);
     } catch (error) {
       throw new Error("Error parsing JSON data");
     }
   }
-  
 
   return (
     <main className="space-y-5 flex justify-center">
@@ -513,7 +508,7 @@ const Generator = () => {
         <div className="mb-4 flex flex-col">
           <label className="font-bold">Disorders</label>
           <select
-            onChange={handleDisorderSelect}
+            onChange={(e) => setSelectedDisorder(e.target.value)}
             className="w-[50%] mt-2 p-2 border rounded"
             value={selectedDisorder || ""}
           >

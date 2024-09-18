@@ -8,12 +8,13 @@ const Summary = () => {
     selectedApproach,
     selectedGoals,
     selectedObjectives,
+    showSummary
   } = useAppContext();
   return (
     <>
     <main className="flex justify-center">
               {/* Treatment Plan Summary */}
-      {selectedObjectives.length > 0 && (
+      {showSummary && (
         <div className="bg-white p-6 rounded-md shadow-lg w-[70%]">
           <h3 className="text-xl font-bold mb-4">Treatment Plan Summary</h3>
           <div className="mb-4">

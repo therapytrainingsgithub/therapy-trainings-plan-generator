@@ -1,29 +1,37 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface AppContextType {
   selectedDisorder: string | null;
-  setSelectedDisorder: (value: string | null) => void;
+  setSelectedDisorder: React.Dispatch<React.SetStateAction<string | null>>;
   selectedSymptoms: string[];
-  setSelectedSymptoms: (value: string[]) => void;
+  setSelectedSymptoms: React.Dispatch<React.SetStateAction<string[]>>;
   selectedApproach: string | null;
-  setSelectedApproach: (value: string | null) => void;
+  setSelectedApproach: React.Dispatch<React.SetStateAction<string | null>>;
   selectedGoals: string[];
-  setSelectedGoals: (value: string[]) => void;
+  setSelectedGoals: React.Dispatch<React.SetStateAction<string[]>>;
   selectedObjectives: string[];
-  setSelectedObjectives: (value: string[]) => void;
+  setSelectedObjectives: React.Dispatch<React.SetStateAction<string[]>>;
   allObjectives: string[];
-  setAllObjectives: (value: string[]) => void;
+  setAllObjectives: React.Dispatch<React.SetStateAction<string[]>>;
+  showSummary: boolean;
+  setShowSummary: React.Dispatch<React.SetStateAction<boolean>>;
+  showSheets: boolean;
+  setShowSheets: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AppProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [selectedDisorder, setSelectedDisorder] = useState<string | null>(null);
   const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
   const [selectedApproach, setSelectedApproach] = useState<string | null>(null);
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [selectedObjectives, setSelectedObjectives] = useState<string[]>([]);
   const [allObjectives, setAllObjectives] = useState<string[]>([]);
+  const [showSummary, setShowSummary] = useState<boolean>(false);
+  const [showSheets, setShowSheets] = useState<boolean>(false);
 
   return (
     <AppContext.Provider
@@ -40,6 +48,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setSelectedObjectives,
         allObjectives,
         setAllObjectives,
+        showSummary,
+        setShowSummary,
+        showSheets,
+        setShowSheets,
       }}
     >
       {children}
@@ -50,7 +62,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 export const useAppContext = () => {
   const context = useContext(AppContext);
   if (context === undefined) {
-    throw new Error('useAppContext must be used within an AppProvider');
+    throw new Error("useAppContext must be used within an AppProvider");
   }
   return context;
 };

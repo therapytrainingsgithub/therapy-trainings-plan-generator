@@ -21,6 +21,7 @@ const Sheets = () => {
     selectedGoals,
     selectedObjectives,
     allObjectives,
+    showSheets
   } = useAppContext();
 
   const handleGenerateWorksheetIdeas = () => {
@@ -105,7 +106,8 @@ const Sheets = () => {
           const responseText = await response.json();
           console.log(responseText);
           const data = formatResponse(responseText.completion);
-          const worksheet = data.worksheet as WorksheetIdea[]; // Type assertion for array
+          const worksheet = data.worksheet[0].worksheets as WorksheetIdea[]; // Type assertion for array
+          console.log(worksheet)
           setWorksheetIdeas(worksheet);
         } catch (error) {
           console.error("Error processing response:", error);
@@ -158,19 +160,26 @@ const Sheets = () => {
     }
   };
 
-  function formatResponse(responseText: string) {
-    // Match JSON data using a more traditional approach
-    const jsonMatch = responseText.match(/\{[^]*?\}/);
+  function formatResponse(responseText: string): any {
+    // Extract JSON part from the text using a more precise regex
+    const jsonMatch = responseText.match(/```json\s*([\s\S]*?)```/);
 
     if (!jsonMatch) {
       throw new Error("No JSON data found in the response");
     }
 
-    const jsonString = jsonMatch[0];
+    const jsonString = jsonMatch[1].trim();
 
     try {
       const jsonData = JSON.parse(jsonString);
-      return jsonData;
+
+      // Ensure it's a valid JSON object or array
+      if (typeof jsonData === "object" && jsonData !== null) {
+        console.log(jsonData)
+        return jsonData;
+      } else {
+        throw new Error("Parsed JSON is not an object or array");
+      }
     } catch (error) {
       throw new Error("Error parsing JSON data");
     }
@@ -179,7 +188,7 @@ const Sheets = () => {
   return (
     <>
       <main className="flex justify-center">
-        {selectedObjectives.length > 0 && (
+        {showSheets && (
           <div className="bg-white p-6 rounded-md shadow-lg w-[70%]">
             {/* Worksheet Ideas */}
             {selectedObjectives.length > 0 && (

@@ -10,12 +10,12 @@ export async function POST(req: Request) {
 
   try {
     // Parse the incoming request body
-    const { disorders, symptoms, treatment_approach } = await req.json();
+    const { disorder, symptoms, treatment_approach } = await req.json();
 
-    console.log("Received data:", { disorders, symptoms, treatment_approach });
+    console.log("Received data:", { disorder, symptoms, treatment_approach });
 
     // Validate incoming data
-    if (!disorders || !symptoms || !treatment_approach) {
+    if (!disorder || !symptoms || !treatment_approach) {
       return NextResponse.json(
         { message: "Disorders, symptoms, and treatment approach are required" },
         { status: 400 }
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     // Construct the prompt with clear formatting instructions
     const prompt = `
       \n\nHuman: Based on the following details:
-      - Disorders: ${disorders}
+      - Disorders: ${disorder}
       - Symptoms: ${symptoms.join(", ")}
       - Treatment Approach: ${treatment_approach}
       Please provide 3 therapy goals for this treatment. For each goal, include 2-3 specific objectives. 
