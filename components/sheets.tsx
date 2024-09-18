@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAppContext } from "@/app/context/appContext";
+import jsPDF from "jspdf";
 
 interface WorksheetIdea {
   idea: string;
@@ -57,16 +58,14 @@ const Sheets = () => {
       typeof selectedWorksheet.content === "string" &&
       selectedWorksheet.content.trim()
     ) {
-      const element = document.createElement("a");
-      const file = new Blob([generatedWorksheet], { type: "text/plain" });
-      element.href = URL.createObjectURL(file);
-      element.download = `${selectedWorksheet.content.replace(
-        /\s+/g,
-        "_"
-      )}.txt`;
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element);
+      // Create a new jsPDF instance
+      const doc = new jsPDF();
+
+      // Add content to the PDF
+      doc.text(selectedWorksheet.content, 10, 10);
+
+      // Save the PDF with a filename
+      doc.save(`${selectedWorksheet.content.replace(/\s+/g, "_")}.pdf`);
     } else {
       console.error(
         "Invalid selectedWorksheet. Please select a valid worksheet."
@@ -210,12 +209,12 @@ const Sheets = () => {
 
                 {/* Show worksheet ideas if available */}
                 {worksheetIdeas.length > 0 && (
-                  <div className="mt-2 md:space-x-2 md:space-y-0 space-y-2">
+                  <div className="mt-4 space-y-4 md:space-y-0 md:space-x-4 md:flex">
                     {worksheetIdeas.map((idea, index) => (
                       <button
                         key={index}
                         onClick={() => handleSelectWorksheet(idea)}
-                        className="p-2 bg-[#709d50] text-white rounded-md hover:bg-[#50822d] transition-colors duration-200"
+                        className="p-4 bg-[#709d50] text-white rounded-lg shadow-md hover:bg-[#50822d] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[#50822d] focus:ring-opacity-50"
                       >
                         {idea.idea}
                       </button>
@@ -246,7 +245,7 @@ const Sheets = () => {
                     onClick={handleDownloadWorksheet}
                     className="p-2 bg-[#709d50] text-white rounded-md hover:bg-[#50822d] transition-colors duration-200"
                   >
-                    Download as Text
+                    Download as PDF
                   </button>
                 </div>
               </div>
