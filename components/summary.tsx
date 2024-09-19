@@ -39,7 +39,7 @@ const Summary = () => {
       // Add logo (assuming you have a base64 or URL for the logo)
       const logoUrl = "/images/logo.png"; // Update with your logo URL or base64 string
       const logoWidth = 30; // Adjust width for the logo (double the height)
-      const logoHeight = 15; // Adjust height for the logo
+      const logoHeight = 8; // Adjust height for the logo
       const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2; // Center logo
       doc.addImage(logoUrl, "PNG", logoX, 10, logoWidth, logoHeight); // Position the logo
 

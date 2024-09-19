@@ -72,7 +72,7 @@ const Sheets = () => {
       // Add logo (assuming you have a base64 or URL for the logo)
       const logoUrl = "/images/logo.png"; // Update with your logo URL or base64 string
       const logoWidth = 30; // Adjust width for the logo
-      const logoHeight = 15; // Adjust height for the logo
+      const logoHeight = 8; // Adjust height for the logo
       const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2; // Center logo
       doc.addImage(logoUrl, "PNG", logoX, 10, logoWidth, logoHeight); // Position the logo
 
@@ -120,10 +120,10 @@ const Sheets = () => {
     if (homeworkIdeas && homeworkIdeas.length > 0) {
       const doc = new jsPDF();
 
-      // Add logo (assuming you have a base64 or URL for the logo)
+      // Add logo
       const logoUrl = "/images/logo.png"; // Update with your logo URL or base64 string
       const logoWidth = 30; // Adjust width for the logo
-      const logoHeight = 12; // Adjust height for the logo
+      const logoHeight = 8; // Adjust height for the logo
       const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2; // Center logo
       doc.addImage(logoUrl, "PNG", logoX, 10, logoWidth, logoHeight); // Position the logo
 
@@ -141,14 +141,24 @@ const Sheets = () => {
 
       // Starting position for the content
       let yPos = logoHeight + 40; // Start below the heading
+      const margin = 10; // Margin for text
 
       // Add each homework idea to the PDF
       homeworkIdeas.forEach((idea) => {
-        doc.text(`• ${idea}`, 10, yPos); // Add each idea with a bullet point
-        yPos += 10; // Increase vertical position for the next idea
+        // Split the text into lines that fit within the page width
+        const splitLines = doc.splitTextToSize(
+          `• ${idea}`,
+          doc.internal.pageSize.getWidth() - margin * 2
+        );
+
+        // Add each line to the PDF
+        splitLines.forEach((line) => {
+          doc.text(line, margin, yPos); // Add each line of content
+          yPos += 10; // Increase vertical position for the next line
+        });
       });
 
-      // Save the PDF with a filename, using a custom name
+      // Save the PDF with a filename
       const fileName = "Homework_Ideas"; // Change this as needed
       doc.save(`${fileName}.pdf`);
     } else {
