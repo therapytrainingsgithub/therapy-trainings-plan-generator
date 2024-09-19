@@ -6,17 +6,20 @@ import { useRouter } from "next/navigation";
 const Page = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false); // Loading state
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       await login(email, password);
-
       router.push("/");
     } catch (error) {
       console.error("Login failed:", error);
+    } finally {
+      setLoading(false); // Reset loading state
     }
   };
 
@@ -25,7 +28,10 @@ const Page = () => {
       <div className="bg-white p-10 rounded-md border shadow-lg w-full">
         {/* header */}
         <div className="flex justify-center">
-          <img src="./images/logo.png" alt="logo" />
+          <img
+            src="https://earnextramiles.s3.ap-south-1.amazonaws.com/uat/logo_1726732771800.png"
+            alt="logo"
+          />
         </div>
 
         {/* form */}
@@ -68,14 +74,27 @@ const Page = () => {
                   />
                 </div>
 
-                <div className="w-full">
-                  <button
-                    type="submit"
-                    className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d] w-full"
-                  >
-                    Submit
-                  </button>
-                </div>
+                {loading ? (
+                  <div className="flex justify-center items-center">
+                    <div
+                      className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-black motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                      role="status"
+                    >
+                      <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+                        Loading...
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full">
+                    <button
+                      type="submit"
+                      className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d] w-full"
+                    >
+                      Submit
+                    </button>
+                  </div>
+                )}
               </form>
             </div>
           </div>

@@ -553,7 +553,7 @@ const Generator: React.FC = () => {
           <label className="font-bold">Disorders</label>
           <select
             onChange={(e) => setSelectedDisorder(e.target.value)}
-            className="w-full md:w-[50%] mt-2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150 ease-in-out"
+            className="w-full md:w-[50%] p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150 ease-in-out"
             value={selectedDisorder || ""}
           >
             <option value="" disabled>
@@ -598,7 +598,7 @@ const Generator: React.FC = () => {
             <label className="font-bold">Treatment Approaches</label>
             <select
               onChange={handleApproachSelect}
-              className="w-[50%] mt-2 p-2 border rounded"
+              className="w-[50%] p-2 border rounded"
               value={selectedApproach || ""}
             >
               <option value="">Select an approach</option>
@@ -674,7 +674,7 @@ const Generator: React.FC = () => {
               </div>
             ) : (
               allObjectives.length > 0 && (
-                <div className="mt-2">
+                <div>
                   {allObjectives.map((objective) => (
                     <button
                       key={objective}
@@ -691,7 +691,7 @@ const Generator: React.FC = () => {
                 </div>
               )
             )}
-            <div className="mt-4">
+            <div className="mt-4 flex justify-end">
               <button
                 onClick={() => refreshObjectives()}
                 className="p-2 bg-[#709d50] text-white rounded-md hover:bg-[#50822d] transition-colors duration-200"

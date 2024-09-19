@@ -36,30 +36,58 @@ const Summary = () => {
       // Create a new jsPDF instance
       const doc = new jsPDF();
 
-      // Set font size
+      // Add logo (assuming you have a base64 or URL for the logo)
+      const logoUrl = "/images/logo.png"; // Update with your logo URL or base64 string
+      const logoWidth = 30; // Adjust width for the logo (double the height)
+      const logoHeight = 15; // Adjust height for the logo
+      const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2; // Center logo
+      doc.addImage(logoUrl, "PNG", logoX, 10, logoWidth, logoHeight); // Position the logo
+
+      // Add heading
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      const heading = "Treatment Plan";
+      const headingX =
+        (doc.internal.pageSize.getWidth() - doc.getTextWidth(heading)) / 2; // Center heading
+      doc.text(heading, headingX, logoHeight + 20); // Position heading below the logo
+
+      // Set font size for content
       doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
 
-      // Format the content
-      const summaryContent = `
-      Disorder: ${selectedDisorder || "None"}
-      Symptoms: ${selectedSymptoms || "None"}
-      Treatment Approach: ${selectedApproach || "None"}
-      Goals: ${selectedGoals.length > 0 ? selectedGoals.join(", ") : "None"}
-      Objectives: ${
-        selectedObjectives.length > 0 ? selectedObjectives.join(", ") : "None"
-      }
-      `;
+      // Create a summary content array for key-value pairs
+      const content = [
+        { key: "Disorder", value: selectedDisorder || "None" },
+        { key: "Symptoms", value: selectedSymptoms || "None" },
+        { key: "Treatment Approach", value: selectedApproach || "None" },
+        {
+          key: "Goals",
+          value: selectedGoals.length > 0 ? selectedGoals.join(", ") : "None",
+        },
+        {
+          key: "Objectives",
+          value:
+            selectedObjectives.length > 0
+              ? selectedObjectives.join(", ")
+              : "None",
+        },
+      ];
 
-      // Add some padding and wrap the text within the page's width
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const margin = 10;
-      const maxLineWidth = pageWidth - margin * 2;
+      // Starting position for the content
+      let yPos = logoHeight + 40; // Start below the heading
 
-      // Split the content into multiple lines to fit within the page width
-      const splitContent = doc.splitTextToSize(summaryContent, maxLineWidth);
+      // Add each key-value pair to the PDF
+      content.forEach((item) => {
+        // Set key to bold
+        doc.setFont("helvetica", "bold");
+        doc.text(item.key + ":", 10, yPos);
 
-      // Add the formatted text to the PDF
-      doc.text(splitContent, margin, 20); // Adjust starting position
+        // Set value to regular, position below the key
+        doc.setFont("helvetica", "normal");
+        const valueY = yPos + 10; // Position value on the next line
+        doc.text(String(item.value), 10, valueY); // Left aligned
+        yPos += 20; // Increase vertical position for the next pair
+      });
 
       // Save the PDF with a filename, using a custom name
       doc.save(`Treatment_Plan_Summary.pdf`);
@@ -75,30 +103,30 @@ const Summary = () => {
         <div className="bg-white p-6 rounded-md shadow-lg w-[70%]">
           <h3 className="text-xl font-bold mb-4">Treatment Plan Summary</h3>
           <div className="mb-4">
-            <h6 className="font-semibold text-gray-700">Disorder:</h6>
-            <p className="text-gray-800">{selectedDisorder || "None"}</p>
+            <h6 className="font-semibold">Disorder:</h6>
+            <p>{selectedDisorder || "None"}</p>
           </div>
           <div className="mb-4">
-            <h6 className="font-semibold text-gray-700">Symptoms:</h6>
-            <p className="text-gray-800">
+            <h6 className="font-semibold">Symptoms:</h6>
+            <p>
               {selectedSymptoms.length > 0
                 ? selectedSymptoms.join(", ")
                 : "None"}
             </p>
           </div>
           <div className="mb-4">
-            <h6 className="font-semibold text-gray-700">Treatment Approach:</h6>
-            <p className="text-gray-800">{selectedApproach || "None"}</p>
+            <h6 className="font-semibold">Treatment Approach:</h6>
+            <p>{selectedApproach || "None"}</p>
           </div>
           <div className="mb-4">
-            <h6 className="font-semibold text-gray-700">Goals:</h6>
-            <p className="text-gray-800">
+            <h6 className="font-semibold">Goals:</h6>
+            <p>
               {selectedGoals.length > 0 ? selectedGoals.join(", ") : "None"}
             </p>
           </div>
           <div>
-            <h6 className="font-semibold text-gray-700">Objectives:</h6>
-            <p className="text-gray-800">
+            <h6 className="font-semibold">Objectives:</h6>
+            <p>
               {selectedObjectives.length > 0
                 ? selectedObjectives.join(", ")
                 : "None"}

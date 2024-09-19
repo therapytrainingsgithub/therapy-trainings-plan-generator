@@ -51,6 +51,16 @@ const Sheets = () => {
       .catch((err) => console.error("Failed to copy worksheet: ", err));
   };
 
+  const handleCopyHomework = () => {
+    // Join the array into a single string, separated by newlines or commas
+    const contentToCopy = homeworkIdeas.join("\n"); // Change "\n" to ", " if you prefer comma separation
+
+    navigator.clipboard
+      .writeText(contentToCopy)
+      .then(() => alert("Worksheet copied to clipboard!"))
+      .catch((err) => console.error("Failed to copy worksheet: ", err));
+  };
+
   const handleDownloadWorksheet = () => {
     if (
       selectedWorksheet &&
@@ -58,21 +68,91 @@ const Sheets = () => {
       selectedWorksheet.content.trim()
     ) {
       const doc = new jsPDF();
+
+      // Add logo (assuming you have a base64 or URL for the logo)
+      const logoUrl = "/images/logo.png"; // Update with your logo URL or base64 string
+      const logoWidth = 30; // Adjust width for the logo
+      const logoHeight = 15; // Adjust height for the logo
+      const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2; // Center logo
+      doc.addImage(logoUrl, "PNG", logoX, 10, logoWidth, logoHeight); // Position the logo
+
+      // Add heading
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      const heading = "Worksheet"; // Change the heading as needed
+      const headingX =
+        (doc.internal.pageSize.getWidth() - doc.getTextWidth(heading)) / 2; // Center heading
+      doc.text(heading, headingX, logoHeight + 20); // Position heading below the logo
+
+      // Set font size for content
       doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+
+      // Prepare the content
       const content = selectedWorksheet.content;
       const pageWidth = doc.internal.pageSize.getWidth();
       const margin = 10;
       const maxLineWidth = pageWidth - margin * 2;
+
+      // Split content into lines that fit within the page width
       const splitContent = doc.splitTextToSize(content, maxLineWidth);
-      doc.text(splitContent, margin, 20);
-      const fileName = selectedWorksheet.content
-        .substring(0, 20)
-        .replace(/\s+/g, "_");
+
+      // Starting position for the content
+      let yPos = logoHeight + 40; // Start below the heading
+
+      // Add the split content to the PDF
+      splitContent.forEach((line: string) => {
+        doc.text(line, margin, yPos); // Add each line of content
+        yPos += 10; // Increase vertical position for the next line
+      });
+
+      // Save the PDF with a filename, using the first 20 characters of content
+      const fileName = content.substring(0, 20).replace(/\s+/g, "_");
       doc.save(`${fileName}.pdf`);
     } else {
       console.error(
         "Invalid selectedWorksheet. Please select a valid worksheet."
       );
+    }
+  };
+
+  const handleDownloadHomework = () => {
+    if (homeworkIdeas && homeworkIdeas.length > 0) {
+      const doc = new jsPDF();
+
+      // Add logo (assuming you have a base64 or URL for the logo)
+      const logoUrl = "/images/logo.png"; // Update with your logo URL or base64 string
+      const logoWidth = 30; // Adjust width for the logo
+      const logoHeight = 12; // Adjust height for the logo
+      const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2; // Center logo
+      doc.addImage(logoUrl, "PNG", logoX, 10, logoWidth, logoHeight); // Position the logo
+
+      // Add heading
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      const heading = "Homework Ideas"; // Change the heading as needed
+      const headingX =
+        (doc.internal.pageSize.getWidth() - doc.getTextWidth(heading)) / 2; // Center heading
+      doc.text(heading, headingX, logoHeight + 20); // Position heading below the logo
+
+      // Set font size for content
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+
+      // Starting position for the content
+      let yPos = logoHeight + 40; // Start below the heading
+
+      // Add each homework idea to the PDF
+      homeworkIdeas.forEach((idea) => {
+        doc.text(`• ${idea}`, 10, yPos); // Add each idea with a bullet point
+        yPos += 10; // Increase vertical position for the next idea
+      });
+
+      // Save the PDF with a filename, using a custom name
+      const fileName = "Homework_Ideas"; // Change this as needed
+      doc.save(`${fileName}.pdf`);
+    } else {
+      console.error("Invalid homeworkIdeas. Please provide valid ideas.");
     }
   };
 
@@ -231,7 +311,7 @@ const Sheets = () => {
                   className="w-full p-2 border rounded-md"
                   rows={5}
                 ></textarea>
-                <div className="mt-2 flex space-x-2">
+                <div className="mt-2 flex justify-end space-x-2">
                   <button
                     onClick={handleCopyWorksheet}
                     className="p-2 bg-[#709d50] text-white rounded-md hover:bg-[#50822d] transition-colors duration-200"
@@ -273,13 +353,29 @@ const Sheets = () => {
                 )}
 
                 {homeworkIdeas.length > 0 && (
-                  <ul className="list-disc pl-5">
-                    {homeworkIdeas.map((idea, index) => (
-                      <li key={index} className="py-1">
-                        {idea}
-                      </li>
-                    ))}
-                  </ul>
+                  <div>
+                    <ul className="list-disc pl-5">
+                      {homeworkIdeas.map((idea, index) => (
+                        <li key={index} className="py-1">
+                          {idea}
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-2 flex justify-end space-x-2">
+                      <button
+                        onClick={handleCopyHomework}
+                        className="p-2 bg-[#709d50] text-white rounded-md hover:bg-[#50822d] transition-colors duration-200"
+                      >
+                        Copy to Clipboard
+                      </button>
+                      <button
+                        onClick={handleDownloadHomework}
+                        className="p-2 bg-[#709d50] text-white rounded-md hover:bg-[#50822d] transition-colors duration-200"
+                      >
+                        Download as PDF
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
             )}
