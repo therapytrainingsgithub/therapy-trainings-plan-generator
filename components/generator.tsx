@@ -549,7 +549,7 @@ const Generator: React.FC = () => {
   return (
     <main className="space-y-5 flex justify-center">
       <div className="bg-white p-6 rounded-md shadow-lg w-[70%]">
-        <div className="mb-4 flex flex-col">
+        <div className="mb-4 flex flex-col space-y-1">
           <label className="font-bold">Disorders</label>
           <select
             onChange={(e) => setSelectedDisorder(e.target.value)}
@@ -568,7 +568,7 @@ const Generator: React.FC = () => {
         </div>
 
         {selectedDisorder && symptoms.length > 0 && (
-          <div className="mb-4">
+          <div className="mb-4 space-y-1">
             <div className="flex space-x-4">
               <h3 className="font-bold">Symptoms</h3>
               {selectedSymptoms.length === 0 && (
@@ -594,7 +594,7 @@ const Generator: React.FC = () => {
         )}
 
         {selectedSymptoms.length > 0 && (
-          <div className="mb-4 flex flex-col">
+          <div className="mb-4 flex flex-col space-y-1">
             <label className="font-bold">Treatment Approaches</label>
             <select
               onChange={handleApproachSelect}
@@ -612,7 +612,7 @@ const Generator: React.FC = () => {
         )}
 
         {selectedApproach && (
-          <div className="mb-4">
+          <div className="mb-4 space-y-1">
             <div className="flex space-x-4">
               <h3 className="font-bold">Goals</h3>
               {goalLoading === false && selectedGoals.length === 0 && (
@@ -651,7 +651,7 @@ const Generator: React.FC = () => {
         )}
 
         {selectedGoals.length > 0 && (
-          <div className="mb-4">
+          <div className="mb-4 space-y-1">
             <div className="flex space-x-4 items-center">
               <h3 className="font-bold">Objectives</h3>
               {objectiveLoading === false &&

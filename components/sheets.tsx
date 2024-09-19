@@ -152,7 +152,7 @@ const Sheets = () => {
         );
 
         // Add each line to the PDF
-        splitLines.forEach((line) => {
+        splitLines.forEach((line: string) => {
           doc.text(line, margin, yPos); // Add each line of content
           yPos += 10; // Increase vertical position for the next line
         });
@@ -269,7 +269,7 @@ const Sheets = () => {
           <div className="bg-white p-6 rounded-md shadow-lg w-[70%]">
             {/* Worksheet Ideas */}
             {selectedObjectives.length > 0 && (
-              <div className="mb-4">
+              <div className="mb-4 space-y-1">
                 <h3 className="font-bold">Worksheet Ideas</h3>
                 <button
                   onClick={handleGenerateWorksheetIdeas}
@@ -292,7 +292,7 @@ const Sheets = () => {
                 )}
 
                 {worksheetIdeas.length > 0 && (
-                  <div className="mt-4 space-y-4 md:space-y-0 md:space-x-4 md:flex">
+                  <div className="mt-4 space-y-4 md:space-y-0 md:space-x-4 md:mt-4 md:flex">
                     {worksheetIdeas.map((idea, index) => (
                       <button
                         key={index}
@@ -340,7 +340,7 @@ const Sheets = () => {
 
             {/* Homework Ideas */}
             {selectedObjectives.length > 0 && (
-              <div className="mb-4">
+              <div className="mb-4 space-y-1">
                 <h3 className="font-bold">Homework Ideas</h3>
                 <button
                   onClick={handleGenerateHomeworkIdeas}
