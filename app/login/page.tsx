@@ -62,7 +62,7 @@ const Page = () => {
           {/* Content */}
           <div className="relative z-10">
             <h1 className="font-bold text-3xl mb-5">
-              Clinical Supervision Tracker
+              Treatment Plan Generator
             </h1>
             <div className="w-full">
               <form
