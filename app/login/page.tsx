@@ -13,8 +13,8 @@ const Page = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // If login is successful and isLoggedIn is set, push to "/"
     if (isLoggedIn) {
+      console.log("is logged in")
       router.push("/");
     }
   }, [isLoggedIn, router]);
@@ -22,7 +22,7 @@ const Page = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setErrorMessage(null); // Reset error message on new attempt
+    setErrorMessage(null);
 
     try {
       // Wait for the login function to complete
