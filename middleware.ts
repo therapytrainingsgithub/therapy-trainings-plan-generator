@@ -10,9 +10,14 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
+  // If session is missing, redirect to login and store the original path
   if (!session) {
-    return NextResponse.rewrite(new URL("/login", req.url));
+    const redirectUrl = new URL("/login", req.url);
+    redirectUrl.searchParams.set("redirectTo", req.nextUrl.pathname);
+    return NextResponse.redirect(redirectUrl);
   }
+
+  return res;
 }
 
 export const config = {
