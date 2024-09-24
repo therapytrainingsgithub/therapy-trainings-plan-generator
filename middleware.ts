@@ -10,9 +10,14 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
+  // If no session exists, redirect to the base URL and then to /login
   if (!session) {
-    return NextResponse.rewrite(new URL("/login", req.url));
+    const baseUrl = new URL("/", req.url); // Get base URL
+    baseUrl.pathname = "/login"; // Append /login to the base URL
+    return NextResponse.redirect(baseUrl); // Redirect to the base URL + /login
   }
+
+  return res; // If session exists, continue
 }
 
 export const config = {
