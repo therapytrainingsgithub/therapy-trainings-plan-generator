@@ -1,25 +1,48 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { login } from "./action";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 const Page = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // If login is successful and isLoggedIn is set, push to "/"
+    if (isLoggedIn) {
+      router.push("/");
+    }
+  }, [isLoggedIn, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage(null); // Reset error message on new attempt
 
     try {
-      await login(email, password);
-      router.push("/");
-    } catch (error) {
+      // Wait for the login function to complete
+      const result = await login(email, password);
+
+      if (result) {
+        // Explicitly wait for the session to be established
+        const { data: sessionData } = await supabase.auth.getSession();
+
+        if (sessionData?.session) {
+          setIsLoggedIn(true); // Set isLoggedIn state to true
+        } else {
+          throw new Error("Session not established after login");
+        }
+      }
+    } catch (error: any) {
       console.error("Login failed:", error);
+      setErrorMessage(error.message || "Login failed. Please try again.");
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
   };
 
@@ -74,6 +97,12 @@ const Page = () => {
                   />
                 </div>
 
+                {/* Error Message */}
+                {errorMessage && (
+                  <div className="text-red-500 text-sm">{errorMessage}</div>
+                )}
+
+                {/* Loading Spinner */}
                 {loading ? (
                   <div className="flex justify-center items-center">
                     <div
