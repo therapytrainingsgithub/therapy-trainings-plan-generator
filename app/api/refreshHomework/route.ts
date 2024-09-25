@@ -30,28 +30,11 @@ export async function POST(req: Request) {
     - Goals: ${treatmentPlan.goals}
     - Objectives: ${treatmentPlan.objectives}
     
-    For provided information, suggest 3 worksheet ideas and provide content for these worksheets. Also don't repeat the ideas for everytime generate new ideas please.
+    For provided information, suggest 4 to 5 homework ideas. Please don't include the already created ideas which are ${treatmentPlan.ideas}, create new ones.
     
     Return the response in JSON format with the following structure:
     {
-      "worksheet": [
-        {
-          "worksheets": [
-            {
-              "idea": "string",
-              "content": "string"
-            },
-            {
-              "idea": "string",
-              "content": "string"
-            },
-            {
-              "idea": "string",
-              "content": "string"
-            }
-          ]
-        }
-      ]
+      "homework": ["idea1", "idea2", "idea3", "idea4", "idea5"]
     }
     Only include the JSON object with the array named "worksheet". Do not include any other information.
     \n\nAssistant: `;

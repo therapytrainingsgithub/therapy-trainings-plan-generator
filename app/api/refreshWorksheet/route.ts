@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     - Goals: ${treatmentPlan.goals}
     - Objectives: ${treatmentPlan.objectives}
     
-    For provided information, suggest 3 worksheet ideas and provide content for these worksheets. Also don't repeat the ideas for everytime generate new ideas please.
+    For provided information, suggest 3 worksheet ideas and provide content for these worksheets. Also don't repeat the ideas for everytime generate new ideas please. The current ideas are ${treatmentPlan.ideas}
     
     Return the response in JSON format with the following structure:
     {

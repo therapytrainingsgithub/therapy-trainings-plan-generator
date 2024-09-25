@@ -27,14 +27,14 @@ const Sheets = () => {
   const [selectedIdea, setSelectedIdea] = useState<WorksheetIdea | null>(null);
 
   useEffect(() => {
-    if(selectedGoals.length === 0 || selectedObjectives.length === 0){
-      setWorksheetIdeas([])
-      setSelectedWorksheet(null)
-      setGeneratedWorksheet("")
-      setHomeworkIdeas([])
-      setSelectedIdea(null)
+    if (selectedGoals.length === 0 || selectedObjectives.length === 0) {
+      setWorksheetIdeas([]);
+      setSelectedWorksheet(null);
+      setGeneratedWorksheet("");
+      setHomeworkIdeas([]);
+      setSelectedIdea(null);
     }
-  }, [selectedGoals, selectedObjectives])
+  }, [selectedGoals, selectedObjectives]);
 
   const handleGenerateWorksheetIdeas = () => {
     generateWorksheet();
@@ -44,6 +44,19 @@ const Sheets = () => {
       approach: selectedApproach,
       goals: selectedGoals,
       objectives: allObjectives,
+    };
+    console.log(treatmentPlan);
+  };
+
+  const handleRefreshWorksheetIdeas = () => {
+    refreshWorksheet();
+    const treatmentPlan = {
+      disorder: selectedDisorder,
+      symptoms: selectedSymptoms,
+      approach: selectedApproach,
+      goals: selectedGoals,
+      objectives: allObjectives,
+      ideas: worksheetIdeas,
     };
     console.log(treatmentPlan);
   };
@@ -140,7 +153,7 @@ const Sheets = () => {
       // Add heading
       doc.setFontSize(16);
       doc.setFont("helvetica", "bold");
-      const heading = "Homework Ideas"; // Change the heading as needed
+      const heading = "Homework"; // Change the heading as needed
       const headingX =
         (doc.internal.pageSize.getWidth() - doc.getTextWidth(heading)) / 2; // Center heading
       doc.text(heading, headingX, logoHeight + 20); // Position heading below the logo
@@ -182,6 +195,12 @@ const Sheets = () => {
     }
   };
 
+  const handleRefreshHomeworkIdeas = () => {
+    if (selectedDisorder && selectedApproach && selectedGoals.length > 0) {
+      refreshHomework();
+    }
+  };
+
   const generateWorksheet = async () => {
     const treatmentPlan = {
       disorder: selectedDisorder,
@@ -191,12 +210,55 @@ const Sheets = () => {
       objectives: allObjectives,
     };
     try {
-      setSelectedWorksheet(null)
-      setWorksheetIdeas([])
-      setGeneratedWorksheet("")
+      setSelectedWorksheet(null);
+      setWorksheetIdeas([]);
+      setGeneratedWorksheet("");
       setWorksheetLoading(true);
-      setSelectedIdea(null)
+      setSelectedIdea(null);
       const response = await fetch("/api/getWorksheet", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ treatmentPlan }),
+      });
+
+      if (response.ok) {
+        try {
+          const responseText = await response.json();
+          const data = formatResponse(responseText.completion);
+          const worksheet = data.worksheet[0].worksheets as WorksheetIdea[];
+          setWorksheetIdeas(worksheet);
+        } catch (error) {
+          console.error("Error processing response:", error);
+        }
+      } else {
+        console.error("Network response was not ok:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error in generateWorksheet:", error);
+    } finally {
+      setWorksheetLoading(false);
+    }
+  };
+
+  const refreshWorksheet = async () => {
+    const ideas = worksheetIdeas.map((idea) => idea.idea);
+    const treatmentPlan = {
+      disorder: selectedDisorder,
+      symptoms: selectedSymptoms,
+      approach: selectedApproach,
+      goals: selectedGoals,
+      objectives: allObjectives,
+      ideas: ideas,
+    };
+    try {
+      setSelectedWorksheet(null);
+      setWorksheetIdeas([]);
+      setGeneratedWorksheet("");
+      setWorksheetLoading(true);
+      setSelectedIdea(null);
+      const response = await fetch("/api/refreshWorksheet", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -232,9 +294,47 @@ const Sheets = () => {
       objectives: allObjectives,
     };
     try {
-      setHomeworkIdeas([])
+      setHomeworkIdeas([]);
       setHomeworkLoading(true);
       const response = await fetch("/api/getHomework", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ treatmentPlan }),
+      });
+      if (response.ok) {
+        try {
+          const responseText = await response.json();
+          const data = formatResponse(responseText.completion)
+            ?.homework as string[];
+          setHomeworkIdeas(data);
+        } catch (error) {
+          console.error("Error processing response:", error);
+        }
+      } else {
+        console.error("Network response was not ok:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error in generateHomework:", error);
+    } finally {
+      setHomeworkLoading(false);
+    }
+  };
+
+  const refreshHomework = async () => {
+    const treatmentPlan = {
+      disorder: selectedDisorder,
+      symptoms: selectedSymptoms,
+      approach: selectedApproach,
+      goals: selectedGoals,
+      objectives: allObjectives,
+      ideas: homeworkIdeas,
+    };
+    try {
+      setHomeworkIdeas([]);
+      setHomeworkLoading(true);
+      const response = await fetch("/api/refreshHomework", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -286,12 +386,21 @@ const Sheets = () => {
             {selectedObjectives.length > 0 && (
               <div className="mb-4 space-y-1">
                 <h3 className="font-bold">Worksheet Ideas</h3>
-                <button
-                  onClick={handleGenerateWorksheetIdeas}
-                  className="p-2 bg-[#50822d] text-white rounded"
-                >
-                  Generate Worksheet Ideas
-                </button>
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={handleGenerateWorksheetIdeas}
+                    className="p-2 bg-[#50822d] text-white rounded"
+                  >
+                    Generate Worksheet Ideas
+                  </button>
+
+                  {/* Conditionally display 'Please Select Idea' message */}
+                  {worksheetIdeas.length > 0 && !selectedIdea && (
+                    <h3 className="font-semibold text-red-500 text-sm">
+                      Please Select Worksheet Idea
+                    </h3>
+                  )}
+                </div>
 
                 {worksheetLoading && (
                   <div className="flex justify-center items-center">
@@ -325,7 +434,6 @@ const Sheets = () => {
                 )}
               </div>
             )}
-
             {/* Generated Worksheet */}
             {generatedWorksheet && worksheetIdeas.length > 0 && (
               <div className="mb-4">
@@ -337,6 +445,12 @@ const Sheets = () => {
                   rows={5}
                 ></textarea>
                 <div className="mt-2 flex justify-end space-x-2">
+                  <button
+                    onClick={handleRefreshWorksheetIdeas}
+                    className="p-2 bg-[#709d50] text-white rounded-md hover:bg-[#50822d] transition-colors duration-200"
+                  >
+                    Refresh Ideas
+                  </button>
                   <button
                     onClick={handleCopyWorksheet}
                     className="p-2 bg-[#709d50] text-white rounded-md hover:bg-[#50822d] transition-colors duration-200"
@@ -379,14 +493,23 @@ const Sheets = () => {
 
                 {homeworkIdeas.length > 0 && (
                   <div>
-                    <ul className="list-disc pl-5">
-                      {homeworkIdeas.map((idea, index) => (
-                        <li key={index} className="py-1">
-                          {idea}
-                        </li>
-                      ))}
-                    </ul>
+                    <pre className="bg-gray-100 p-3 rounded-md mt-2">
+                      <ul className="list-disc pl-5">
+                        {homeworkIdeas.map((idea, index) => (
+                          <li key={index} className="py-1">
+                            {idea}
+                          </li>
+                        ))}
+                      </ul>
+                    </pre>
+
                     <div className="mt-2 flex justify-end space-x-2">
+                      <button
+                        onClick={handleRefreshHomeworkIdeas}
+                        className="p-2 bg-[#709d50] text-white rounded-md hover:bg-[#50822d] transition-colors duration-200"
+                      >
+                        Refresh Ideas
+                      </button>
                       <button
                         onClick={handleCopyHomework}
                         className="p-2 bg-[#709d50] text-white rounded-md hover:bg-[#50822d] transition-colors duration-200"
