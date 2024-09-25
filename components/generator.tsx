@@ -512,6 +512,7 @@ const Generator: React.FC = () => {
   const refreshObjectives = async () => {
     try {
       setObjectiveLoading(true);
+      setAllObjectives([]);
 
       // Send request to fetch new goals and objectives
       const response = await fetch("/api/postDisorder", {
@@ -530,8 +531,22 @@ const Generator: React.FC = () => {
       if (response.ok) {
         const responseText = await response.json();
         const data = formatResponse(responseText.completion);
-        console.log("datagoal", data.goals);
         setGoals(data.goals);
+
+        const filteredGoals = data.goals.filter((goal) =>
+          selectedGoals.includes(goal.goal)
+        ); 
+     
+        if (filteredGoals.length > 0) {
+          const objectives = filteredGoals
+            .map((goal) => goal.objectives)
+            .flat();
+          console.log("objectives", objectives);
+          setAllObjectives(objectives);
+        } else {
+          console.log("No matching filtered goals found.");
+          setAllObjectives([]); 
+        }
       } else {
         console.error("Network response was not ok:", response.statusText);
       }
