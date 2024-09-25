@@ -524,18 +524,9 @@ const Generator: React.FC = () => {
       if (response.ok) {
         const responseText = await response.json();
         const data = formatResponse(responseText.completion);
-
-        // Update goals
+        console.log("datagoal", data.goals);
         setGoals(data.goals);
 
-        // Extract and update new objectives
-        const newObjectives = data.goals.flatMap((goal) => goal.objectives);
-        setAllObjectives(newObjectives);
-
-        // Keep only the selected objectives that are still valid
-        setSelectedObjectives((prev) =>
-          prev.filter((objective) => newObjectives.includes(objective))
-        );
       } else {
         console.error("Network response was not ok:", response.statusText);
       }
@@ -543,6 +534,7 @@ const Generator: React.FC = () => {
       console.error("Error in refreshObjectives:", error);
     } finally {
       setObjectiveLoading(false);
+      console.log(allObjectives, selectedObjectives);
     }
   };
 

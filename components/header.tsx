@@ -41,7 +41,6 @@ const Header = () => {
   }, [dropdownRef]);
 
   const goToSettings = () => {
-    console.log("here");
     router.push("/settings");
   };
 
@@ -59,7 +58,13 @@ const Header = () => {
             onClick={toggleDropdown}
           />
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
+              <button
+                onClick={goToSettings}
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-200"
+              >
+                Settings
+              </button>
               <button
                 onClick={handleLogout}
                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -88,9 +93,7 @@ const Header = () => {
           />
         </div>
         <div className="relative z-10">
-          <h1 className="text-[32px] font-bold font-roboto">
-            Welcome Guest
-          </h1>
+          <h1 className="text-[32px] font-bold font-roboto">Welcome Guest</h1>
           <p className="text-[24px] font-regular">
             Your Treatment Plan Generator.
           </p>
