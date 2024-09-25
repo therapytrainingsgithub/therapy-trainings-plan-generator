@@ -457,6 +457,12 @@ const Generator: React.FC = () => {
     setShowSheets(true);
   };
 
+  useEffect(() => {
+    if (selectedObjectives.length === 0 || selectedGoals.length === 0) {
+      setShowSheets(false);
+    }
+  }, [selectedObjectives, selectedGoals]);
+
   const generateGoalsObjectives = async () => {
     try {
       setGoalLoading(true);
@@ -526,7 +532,6 @@ const Generator: React.FC = () => {
         const data = formatResponse(responseText.completion);
         console.log("datagoal", data.goals);
         setGoals(data.goals);
-
       } else {
         console.error("Network response was not ok:", response.statusText);
       }

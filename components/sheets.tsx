@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppContext } from "@/app/context/appContext";
 import jsPDF from "jspdf";
 
@@ -25,6 +25,16 @@ const Sheets = () => {
     showSheets,
   } = useAppContext();
   const [selectedIdea, setSelectedIdea] = useState<WorksheetIdea | null>(null);
+
+  useEffect(() => {
+    if(selectedGoals.length === 0 || selectedObjectives.length === 0){
+      setWorksheetIdeas([])
+      setSelectedWorksheet(null)
+      setGeneratedWorksheet("")
+      setHomeworkIdeas([])
+      setSelectedIdea(null)
+    }
+  }, [selectedGoals, selectedObjectives])
 
   const handleGenerateWorksheetIdeas = () => {
     generateWorksheet();
@@ -181,7 +191,11 @@ const Sheets = () => {
       objectives: allObjectives,
     };
     try {
+      setSelectedWorksheet(null)
+      setWorksheetIdeas([])
+      setGeneratedWorksheet("")
       setWorksheetLoading(true);
+      setSelectedIdea(null)
       const response = await fetch("/api/getWorksheet", {
         method: "POST",
         headers: {
@@ -218,6 +232,7 @@ const Sheets = () => {
       objectives: allObjectives,
     };
     try {
+      setHomeworkIdeas([])
       setHomeworkLoading(true);
       const response = await fetch("/api/getHomework", {
         method: "POST",
@@ -312,7 +327,7 @@ const Sheets = () => {
             )}
 
             {/* Generated Worksheet */}
-            {generatedWorksheet && (
+            {generatedWorksheet && worksheetIdeas.length > 0 && (
               <div className="mb-4">
                 <h3 className="font-bold">Generated Worksheet</h3>
                 <textarea
