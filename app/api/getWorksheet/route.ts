@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     - Goals: ${treatmentPlan.goals}
     - Objectives: ${treatmentPlan.objectives}
     
-    For provided information, suggest 3 worksheet ideas and provide content for these worksheets. Also don't repeat the ideas for everytime generate new ideas please.
+    For the provided information, suggest 3 worksheet ideas relevant to the patient's treatment. For each idea, include 4 therapeutic tasks. Each task should have a header and a description, such as tracking behaviors, journaling, or self-reflection exercises.
     
     Return the response in JSON format with the following structure:
     {
@@ -39,15 +39,66 @@ export async function POST(req: Request) {
           "worksheets": [
             {
               "idea": "string",
-              "content": "string"
+              "content": [
+                {
+                  "header": "string",
+                  "description": "string"
+                },
+                {
+                  "header": "string",
+                  "description": "string"
+                },
+                {
+                  "header": "string",
+                  "description": "string"
+                },
+                {
+                  "header": "string",
+                  "description": "string"
+                }
+              ]
             },
             {
               "idea": "string",
-              "content": "string"
+              "content": [
+                {
+                  "header": "string",
+                  "description": "string"
+                },
+                {
+                  "header": "string",
+                  "description": "string"
+                },
+                {
+                  "header": "string",
+                  "description": "string"
+                },
+                {
+                  "header": "string",
+                  "description": "string"
+                }
+              ]
             },
             {
               "idea": "string",
-              "content": "string"
+              "content": [
+                {
+                  "header": "string",
+                  "description": "string"
+                },
+                {
+                  "header": "string",
+                  "description": "string"
+                },
+                {
+                  "header": "string",
+                  "description": "string"
+                },
+                {
+                  "header": "string",
+                  "description": "string"
+                }
+              ]
             }
           ]
         }
@@ -86,6 +137,7 @@ export async function POST(req: Request) {
 
     // Return the result
     const result = await response.json();
+    console.log(result);
     return NextResponse.json(result);
   } catch (error) {
     console.error("Error:", error);

@@ -12,7 +12,7 @@ const Sheets = () => {
   const [homeworkLoading, setHomeworkLoading] = useState<boolean>(false);
   const [worksheetIdeas, setWorksheetIdeas] = useState<WorksheetIdea[]>([]);
   const [selectedWorksheet, setSelectedWorksheet] =
-    useState<WorksheetIdea | null>(null);
+    useState<WorksheetIdea | any>(null);
   const [generatedWorksheet, setGeneratedWorksheet] = useState<string>("");
   const [homeworkIdeas, setHomeworkIdeas] = useState<string[]>([]);
   const {
@@ -87,50 +87,78 @@ const Sheets = () => {
   const handleDownloadWorksheet = () => {
     if (
       selectedWorksheet &&
-      typeof selectedWorksheet.content === "string" &&
-      selectedWorksheet.content.trim()
+      Array.isArray(selectedWorksheet.content) &&
+      selectedWorksheet.content.length > 0
     ) {
       const doc = new jsPDF();
 
-      // Add logo (assuming you have a base64 or URL for the logo)
-      const logoUrl = "/images/logo.png"; // Update with your logo URL or base64 string
-      const logoWidth = 30; // Adjust width for the logo
-      const logoHeight = 8; // Adjust height for the logo
-      const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2; // Center logo
-      doc.addImage(logoUrl, "PNG", logoX, 10, logoWidth, logoHeight); // Position the logo
+      // Add logo
+      const logoUrl = "/images/logo.png";
+      const logoWidth = 50;
+      const logoHeight = 13;
+      const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2;
+      doc.addImage(logoUrl, "PNG", logoX, 10, logoWidth, logoHeight);
 
       // Add heading
       doc.setFontSize(16);
       doc.setFont("helvetica", "bold");
-      const heading = "Worksheet"; // Change the heading as needed
+      const heading = "Worksheet";
       const headingX =
-        (doc.internal.pageSize.getWidth() - doc.getTextWidth(heading)) / 2; // Center heading
-      doc.text(heading, headingX, logoHeight + 20); // Position heading below the logo
+        (doc.internal.pageSize.getWidth() - doc.getTextWidth(heading)) / 2;
+      doc.text(heading, headingX, logoHeight + 20);
 
       // Set font size for content
       doc.setFontSize(12);
       doc.setFont("helvetica", "normal");
 
-      // Prepare the content
-      const content = selectedWorksheet.content;
-      const pageWidth = doc.internal.pageSize.getWidth();
+      // Define table layout
+      const startY = logoHeight + 30; // Start position for the table
+      let yPos = startY;
       const margin = 10;
-      const maxLineWidth = pageWidth - margin * 2;
+      const columnWidth = (doc.internal.pageSize.getWidth() - margin * 2) / 2; // Two columns with margin
+      const rowHeight = 60; // Total height for each entry (equal height for header and description)
 
-      // Split content into lines that fit within the page width
-      const splitContent = doc.splitTextToSize(content, maxLineWidth);
+      // Loop through the worksheet content
+      selectedWorksheet.content.forEach((task: any, index: any) => {
+        // Check for page breaks
+        if (index % 4 === 0 && index !== 0) {
+          doc.addPage(); // Add a new page after every 4 rows
+          yPos = startY; // Reset Y position after page break
+        }
 
-      // Starting position for the content
-      let yPos = logoHeight + 40; // Start below the heading
+        // Draw the row with borders
+        doc.setDrawColor(0); // Black color for lines
+        doc.rect(margin, yPos, columnWidth, rowHeight); // Left cell for header
+        doc.rect(margin + columnWidth, yPos, columnWidth, rowHeight); // Right cell for description
 
-      // Add the split content to the PDF
-      splitContent.forEach((line: string) => {
-        doc.text(line, margin, yPos); // Add each line of content
-        yPos += 10; // Increase vertical position for the next line
+        // Add header text (occupying part of the header cell)
+        doc.setFont("helvetica", "bold");
+        doc.text(task.header, margin + 5, yPos + 15); // Header text
+
+        // Add description text (with extra empty lines)
+        doc.setFont("helvetica", "normal");
+        const splitDescription = doc.splitTextToSize(
+          task.description,
+          columnWidth - 10 // Adjust for padding
+        );
+        doc.text(splitDescription, margin + columnWidth + 5, yPos + 15); // Description text
+
+        // Add empty lines inside the description cell
+        const emptyLines = 2; // Number of empty lines you want to include
+        const lineHeight = 10; // Height of each empty line
+        for (let i = 0; i < emptyLines; i++) {
+          const lineY = yPos + 15 + (splitDescription.length + i) * lineHeight;
+          doc.text("", margin + columnWidth + 5, lineY); // Add empty lines
+        }
+
+        // Move down for the next entry
+        yPos += rowHeight; // Move Y position down for the next row
       });
 
-      // Save the PDF with a filename, using the first 20 characters of content
-      const fileName = content.substring(0, 20).replace(/\s+/g, "_");
+      // Save the PDF with a filename
+      const fileName = selectedWorksheet.idea
+        .substring(0, 20)
+        .replace(/\s+/g, "_");
       doc.save(`${fileName}.pdf`);
     } else {
       console.error(
@@ -438,12 +466,24 @@ const Sheets = () => {
             {generatedWorksheet && worksheetIdeas.length > 0 && (
               <div className="mb-4">
                 <h3 className="font-bold">Generated Worksheet</h3>
-                <textarea
-                  value={generatedWorksheet}
-                  readOnly
-                  className="w-full p-2 border rounded-md"
-                  rows={5}
-                ></textarea>
+                <div className="border border-gray-400 border-solid p-2">
+                  {" "}
+                  {/* Changed to solid for visibility */}
+                  <table className="min-w-full border-collapse border border-gray-300">
+                    <tbody>
+                      {selectedWorksheet.content.map((task: any, index: any) => (
+                        <tr key={index}>
+                          <td className="border border-gray-300 p-2">
+                            {task.header}
+                          </td>
+                          <td className="border border-gray-300 p-2">
+                            {task.description}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
                 <div className="mt-2 flex justify-end space-x-2">
                   <button
                     onClick={handleRefreshWorksheetIdeas}
