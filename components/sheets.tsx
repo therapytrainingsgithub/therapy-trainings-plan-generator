@@ -493,15 +493,15 @@ const Sheets = () => {
 
                 {homeworkIdeas.length > 0 && (
                   <div>
-                    <pre className="bg-gray-100 p-3 rounded-md mt-2">
-                      <ul className="list-disc pl-5">
-                        {homeworkIdeas.map((idea, index) => (
-                          <li key={index} className="py-1">
-                            {idea}
-                          </li>
-                        ))}
-                      </ul>
-                    </pre>
+                    <h3 className="font-bold mt-4">Generated Homework</h3>
+                    <textarea
+                      readOnly
+                      className="w-full p-2 border rounded-md"
+                      rows={8}
+                      value={homeworkIdeas
+                        .map((idea) => `• ${idea}`)
+                        .join("\n")} // Adding "• " to simulate bullets
+                    ></textarea>
 
                     <div className="mt-2 flex justify-end space-x-2">
                       <button

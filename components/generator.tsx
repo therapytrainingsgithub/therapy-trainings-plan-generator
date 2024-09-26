@@ -9,359 +9,8 @@ interface Goal {
 interface Disorder {
   id: string;
   name: string;
-  symptoms: string[];
+  symptoms: any;
 }
-
-const disorders: Disorder[] = [
-  // Schizophrenia Spectrum and Other Primary Psychotic Disorders
-  {
-    id: "F20.0",
-    name: "Schizophrenia",
-    symptoms: [
-      "Delusions",
-      "Hallucinations",
-      "Disorganized speech",
-      "Negative symptoms",
-    ],
-  },
-  {
-    id: "F21.0",
-    name: "Schizotypal disorder",
-    symptoms: [
-      "Odd beliefs or magical thinking",
-      "Unusual perceptual experiences",
-      "Suspiciousness",
-      "Inappropriate or constricted affect",
-    ],
-  },
-  {
-    id: "F22.0",
-    name: "Persistent delusional disorders",
-    symptoms: [
-      "Delusions that persist for at least one month",
-      "No hallucinations or disorganized speech",
-    ],
-  },
-  {
-    id: "F23.0",
-    name: "Acute and transient psychotic disorders",
-    symptoms: [
-      "Sudden onset of psychotic symptoms",
-      "Delusions",
-      "Hallucinations",
-      "Disorganized behavior",
-    ],
-  },
-  {
-    id: "F24.0",
-    name: "Induced delusional disorder",
-    symptoms: [
-      "Delusions induced by another person",
-      "Symptoms resolve when the influencing factor is removed",
-    ],
-  },
-  {
-    id: "F25.0",
-    name: "Schizoaffective disorders",
-    symptoms: [
-      "Symptoms of schizophrenia",
-      "Mood disorder episodes (mania or depression)",
-    ],
-  },
-  {
-    id: "F28.0",
-    name: "Other nonorganic psychotic disorders",
-    symptoms: [
-      "Psychotic symptoms not covered by other categories",
-      "Includes various symptoms based on specific disorder",
-    ],
-  },
-  {
-    id: "F29.0",
-    name: "Unspecified nonorganic psychosis",
-    symptoms: [
-      "Psychotic symptoms not specified elsewhere",
-      "General psychotic symptoms",
-    ],
-  },
-
-  // Mood Disorders
-  {
-    id: "F30.0",
-    name: "Manic episode",
-    symptoms: [
-      "Elevated mood",
-      "Increased activity",
-      "Grandiosity",
-      "Decreased need for sleep",
-      "Talkativeness",
-      "Racing thoughts",
-      "Impulsivity",
-    ],
-  },
-  {
-    id: "F31.0",
-    name: "Bipolar affective disorder",
-    symptoms: [
-      "Manic episodes",
-      "Depressive episodes",
-      "Mood swings between mania and depression",
-    ],
-  },
-  {
-    id: "F32.0",
-    name: "Major depressive disorder, single episode",
-    symptoms: [
-      "Depressed mood",
-      "Loss of interest or pleasure",
-      "Significant weight change",
-      "Sleep disturbances",
-      "Fatigue",
-      "Feelings of worthlessness",
-    ],
-  },
-  {
-    id: "F33.0",
-    name: "Recurrent depressive disorder",
-    symptoms: [
-      "Multiple episodes of major depression",
-      "Similar symptoms to single episode but recurrent",
-    ],
-  },
-  {
-    id: "F34.0",
-    name: "Persistent mood [affective] disorders",
-    symptoms: [
-      "Chronic mood disturbances",
-      "Depressive or manic symptoms lasting for extended periods",
-    ],
-  },
-
-  // Anxiety Disorders
-  {
-    id: "F40.0",
-    name: "Phobic anxiety disorders",
-    symptoms: [
-      "Intense fear of specific objects or situations",
-      "Avoidance behavior",
-      "Panic attacks when exposed to the phobic stimulus",
-    ],
-  },
-  {
-    id: "F41.0",
-    name: "Other anxiety disorders",
-    symptoms: [
-      "Generalized anxiety",
-      "Excessive worry",
-      "Restlessness",
-      "Muscle tension",
-      "Sleep disturbances",
-    ],
-  },
-  {
-    id: "F43.0",
-    name: "Reaction to severe stress and adjustment disorders",
-    symptoms: [
-      "Stress-related symptoms",
-      "Adjustment difficulties",
-      "Emotional disturbances following stress",
-    ],
-  },
-
-  // Obsessive-Compulsive and Related Disorders
-  {
-    id: "F42.0",
-    name: "Obsessive-compulsive disorder",
-    symptoms: [
-      "Obsessions (persistent, unwanted thoughts)",
-      "Compulsions (repetitive behaviors performed to reduce anxiety)",
-    ],
-  },
-
-  // Trauma and Stressor-Related Disorders
-  {
-    id: "F43.1",
-    name: "Acute stress reaction",
-    symptoms: [
-      "Immediate stress response",
-      "Confusion",
-      "Disorientation",
-      "Difficulty sleeping",
-    ],
-  },
-  {
-    id: "F43.2",
-    name: "Post-traumatic stress disorder",
-    symptoms: [
-      "Re-experiencing the trauma",
-      "Avoidance of reminders",
-      "Hyperarousal (e.g., irritability, hypervigilance)",
-    ],
-  },
-  {
-    id: "F43.3",
-    name: "Adjustment disorders",
-    symptoms: [
-      "Emotional or behavioral symptoms in response to identifiable stressors",
-      "Symptoms appear within three months of the stressor",
-    ],
-  },
-
-  // Eating Disorders
-  {
-    id: "F50.0",
-    name: "Anorexia nervosa",
-    symptoms: [
-      "Severe restriction of food intake",
-      "Intense fear of gaining weight",
-      "Distorted body image",
-    ],
-  },
-  {
-    id: "F50.1",
-    name: "Bulimia nervosa",
-    symptoms: [
-      "Binge eating",
-      "Compensatory behaviors (e.g., vomiting, excessive exercise)",
-      "Preoccupation with weight and body shape",
-    ],
-  },
-  {
-    id: "F50.2",
-    name: "Binge eating disorder",
-    symptoms: [
-      "Frequent episodes of eating large amounts of food",
-      "Feelings of loss of control during binge episodes",
-    ],
-  },
-  {
-    id: "F50.8",
-    name: "Other eating disorders",
-    symptoms: ["Various symptoms specific to less common eating disorders"],
-  },
-
-  // Neurodevelopmental Disorders
-  {
-    id: "F80.0",
-    name: "Specific developmental disorders of speech and language",
-    symptoms: [
-      "Speech and language difficulties",
-      "Delayed language acquisition",
-      "Communication problems",
-    ],
-  },
-  {
-    id: "F81.0",
-    name: "Specific developmental disorders of scholastic skills",
-    symptoms: [
-      "Difficulty with reading, writing, or arithmetic",
-      "Academic performance issues",
-    ],
-  },
-  {
-    id: "F82.0",
-    name: "Specific developmental disorder of motor function",
-    symptoms: [
-      "Motor coordination difficulties",
-      "Clumsiness",
-      "Difficulty with fine and gross motor skills",
-    ],
-  },
-  {
-    id: "F84.0",
-    name: "Pervasive developmental disorders",
-    symptoms: [
-      "Autism spectrum disorders",
-      "Impaired social interaction",
-      "Communication difficulties",
-      "Restricted, repetitive behaviors",
-    ],
-  },
-
-  // Personality Disorders
-  {
-    id: "F60.0",
-    name: "Paranoid personality disorder",
-    symptoms: [
-      "Distrust and suspicion",
-      "Belief that others are exploiting or deceiving",
-      "Suspiciousness",
-    ],
-  },
-  {
-    id: "F60.1",
-    name: "Schizoid personality disorder",
-    symptoms: [
-      "Detachment from social relationships",
-      "Limited range of emotions",
-      "Indifference to praise or criticism",
-    ],
-  },
-  {
-    id: "F60.2",
-    name: "Dissocial personality disorder",
-    symptoms: [
-      "Disregard for others' rights",
-      "Deceitfulness",
-      "Impulsivity",
-      "Irritability",
-    ],
-  },
-  {
-    id: "F60.3",
-    name: "Borderline personality disorder",
-    symptoms: [
-      "Instability in relationships",
-      "Self-image",
-      "Emotions",
-      "Impulsivity",
-    ],
-  },
-  {
-    id: "F60.4",
-    name: "Histrionic personality disorder",
-    symptoms: [
-      "Excessive emotionality",
-      "Attention-seeking behavior",
-      "Dramatic or theatrical behavior",
-    ],
-  },
-  {
-    id: "F60.5",
-    name: "Anankastic personality disorder",
-    symptoms: [
-      "Preoccupation with orderliness",
-      "Perfectionism",
-      "Control",
-      "Rigidity",
-    ],
-  },
-  {
-    id: "F60.6",
-    name: "Avoidant personality disorder",
-    symptoms: [
-      "Hypersensitivity to criticism",
-      "Feelings of inadequacy",
-      "Social inhibition",
-    ],
-  },
-  {
-    id: "F60.7",
-    name: "Dependent personality disorder",
-    symptoms: [
-      "Excessive need to be taken care of",
-      "Submissive behavior",
-      "Difficulty making decisions",
-    ],
-  },
-  {
-    id: "F60.8",
-    name: "Other personality disorders",
-    symptoms: [
-      "Various symptoms specific to less common personality disorders",
-    ],
-  },
-];
 
 const treatmentApproaches: string[] = [
   "Cognitive Behavioral Therapy (CBT)",
@@ -372,6 +21,7 @@ const treatmentApproaches: string[] = [
 const Generator: React.FC = () => {
   const [goalLoading, setGoalLoading] = useState<boolean>(false);
   const [objectiveLoading, setObjectiveLoading] = useState<boolean>(false);
+  const [disorders, setDisorders] = useState<Disorder[]>([])
   const {
     selectedDisorder,
     setSelectedDisorder,
@@ -393,11 +43,31 @@ const Generator: React.FC = () => {
   const [goals, setGoals] = useState<Goal[]>([]);
 
   useEffect(() => {
+    const fetchDisorders = async () => {
+      try {
+        const response = await fetch('api/getDisorder');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log(data)
+        setDisorders(data)
+      } catch (error) {
+        console.log(error)
+      }
+    };
+
+    fetchDisorders();
+  }, []);
+
+  useEffect(() => {
     if (selectedDisorder) {
       const disorder = disorders.find((d) => d.name === selectedDisorder);
       if (disorder) {
-        setSymptoms(disorder.symptoms);
-        setSelectedSymptoms([]); // Clear previously selected symptoms
+        console.log(disorder)
+        const fetchedSymptoms = disorder.symptoms[0]
+        setSymptoms(fetchedSymptoms);
+        setSelectedSymptoms([]);
       }
     } else {
       setSymptoms([]);
@@ -535,8 +205,8 @@ const Generator: React.FC = () => {
 
         const filteredGoals = data.goals.filter((goal) =>
           selectedGoals.includes(goal.goal)
-        ); 
-     
+        );
+
         if (filteredGoals.length > 0) {
           const objectives = filteredGoals
             .map((goal) => goal.objectives)
@@ -545,7 +215,7 @@ const Generator: React.FC = () => {
           setAllObjectives(objectives);
         } else {
           console.log("No matching filtered goals found.");
-          setAllObjectives([]); 
+          setAllObjectives([]);
         }
       } else {
         console.error("Network response was not ok:", response.statusText);
