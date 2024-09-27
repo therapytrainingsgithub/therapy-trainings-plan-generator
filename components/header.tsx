@@ -25,7 +25,7 @@ const Header = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) // Explicitly cast the target to Node
+        !dropdownRef.current.contains(event.target as Node)
       ) {
         setDropdownOpen(false); // Close the dropdown
       }
@@ -77,7 +77,7 @@ const Header = () => {
       </div>
 
       <div
-        className="relative py-8 px-5 rounded-xl mt-10"
+        className="relative py-8 px-5 rounded-xl mt-10 mx-5"
         style={{
           background: "linear-gradient(330deg, #709D50 0%, #FCFEF2 100%)",
           border: "1px solid #dcdcdc",
@@ -93,10 +93,9 @@ const Header = () => {
           />
         </div>
         <div className="relative z-10">
-          <h1 className="text-[32px] font-bold font-roboto">Welcome Guest</h1>
-          <p className="text-[24px] font-regular">
-            Your Treatment Plan Generator.
-          </p>
+          <h1 className="text-[32px] font-bold font-roboto">
+            Therapy Worksheet Generator
+          </h1>
         </div>
       </div>
     </main>

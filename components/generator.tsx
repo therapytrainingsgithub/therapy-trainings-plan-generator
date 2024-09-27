@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAppContext } from "../app/context/appContext";
+import SearchableDropdown from "./SearchableDropdown";
 
 interface Goal {
   goal: string;
@@ -21,7 +22,7 @@ const treatmentApproaches: string[] = [
 const Generator: React.FC = () => {
   const [goalLoading, setGoalLoading] = useState<boolean>(false);
   const [objectiveLoading, setObjectiveLoading] = useState<boolean>(false);
-  const [disorders, setDisorders] = useState<Disorder[]>([])
+  const [disorders, setDisorders] = useState<Disorder[]>([]);
   const {
     selectedDisorder,
     setSelectedDisorder,
@@ -45,15 +46,15 @@ const Generator: React.FC = () => {
   useEffect(() => {
     const fetchDisorders = async () => {
       try {
-        const response = await fetch('api/getDisorder');
+        const response = await fetch("api/getDisorder");
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         const data = await response.json();
-        console.log(data)
-        setDisorders(data)
+        console.log(data);
+        setDisorders(data);
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
     };
 
@@ -64,8 +65,7 @@ const Generator: React.FC = () => {
     if (selectedDisorder) {
       const disorder = disorders.find((d) => d.name === selectedDisorder);
       if (disorder) {
-        console.log(disorder)
-        const fetchedSymptoms = disorder.symptoms[0]
+        const fetchedSymptoms = disorder.symptoms[0];
         setSymptoms(fetchedSymptoms);
         setSelectedSymptoms([]);
       }
@@ -79,7 +79,7 @@ const Generator: React.FC = () => {
     if (selectedApproach) {
       generateGoalsObjectives();
     }
-  }, [selectedApproach, selectedDisorder]); // Added selectedDisorder as dependency
+  }, [selectedApproach, selectedDisorder]);
 
   const handleSymptomToggle = (symptom: string) => {
     setSelectedSymptoms((prevSymptoms) =>
@@ -89,11 +89,8 @@ const Generator: React.FC = () => {
     );
   };
 
-  const handleApproachSelect = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const approach = event.target.value;
-    setSelectedApproach(approach);
+  const handleApproachSelect = (selectedOption: string) => {
+    setSelectedApproach(selectedOption);
     setAllObjectives([]);
     setSelectedObjectives([]);
   };
@@ -184,7 +181,6 @@ const Generator: React.FC = () => {
       setObjectiveLoading(true);
       setAllObjectives([]);
 
-      // Send request to fetch new goals and objectives
       const response = await fetch("/api/postDisorder", {
         method: "POST",
         headers: {
@@ -211,10 +207,8 @@ const Generator: React.FC = () => {
           const objectives = filteredGoals
             .map((goal) => goal.objectives)
             .flat();
-          console.log("objectives", objectives);
           setAllObjectives(objectives);
         } else {
-          console.log("No matching filtered goals found.");
           setAllObjectives([]);
         }
       } else {
@@ -224,7 +218,6 @@ const Generator: React.FC = () => {
       console.error("Error in refreshObjectives:", error);
     } finally {
       setObjectiveLoading(false);
-      console.log(allObjectives, selectedObjectives);
     }
   };
 
@@ -233,20 +226,17 @@ const Generator: React.FC = () => {
       <div className="bg-white p-6 rounded-md shadow-lg w-[70%]">
         <div className="mb-4 flex flex-col space-y-1">
           <label className="font-bold">Disorders</label>
-          <select
-            onChange={(e) => setSelectedDisorder(e.target.value)}
-            className="w-full md:w-[50%] p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150 ease-in-out"
-            value={selectedDisorder || ""}
-          >
-            <option value="" disabled>
-              Select a disorder
-            </option>
-            {disorders.map((disorder) => (
-              <option key={disorder.id} value={disorder.name}>
-                {disorder.name}
-              </option>
-            ))}
-          </select>
+          <SearchableDropdown
+            options={disorders}
+            label="name"
+            id="disorder"
+            selectedVal={selectedDisorder}
+            handleChange={(selectedOption: any) =>
+              setSelectedDisorder(selectedOption)
+            }
+            filterEnabled={true}
+            placeholder="Select a Disorder"
+          />
         </div>
 
         {selectedDisorder && symptoms.length > 0 && (
@@ -278,18 +268,20 @@ const Generator: React.FC = () => {
         {selectedSymptoms.length > 0 && (
           <div className="mb-4 flex flex-col space-y-1">
             <label className="font-bold">Treatment Approaches</label>
-            <select
-              onChange={handleApproachSelect}
-              className="w-[50%] p-2 border rounded"
-              value={selectedApproach || ""}
-            >
-              <option value="">Select an approach</option>
-              {treatmentApproaches.map((approach) => (
-                <option key={approach} value={approach}>
-                  {approach}
-                </option>
-              ))}
-            </select>
+            <SearchableDropdown
+              options={treatmentApproaches.map((approach) => ({
+                id: approach,
+                name: approach,
+              }))}
+              label="name"
+              id="approach"
+              selectedVal={selectedApproach}
+              handleChange={(selectedOption: any) =>
+                setSelectedApproach(selectedOption)
+              }
+              filterEnabled={true} // Enable search
+              placeholder="Select an Approach"
+            />
           </div>
         )}
 
