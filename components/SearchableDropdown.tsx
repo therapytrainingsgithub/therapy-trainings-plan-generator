@@ -10,26 +10,32 @@ const SearchableDropdown = ({
   filterEnabled = false, // Control filtering
   placeholder = "Select an option", // Default placeholder value
 }: any) => {
-  const [query, setQuery] = useState<any>("");
-  const [isOpen, setIsOpen] = useState<any>(false);
+  const [query, setQuery] = useState<string>("");
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const inputRef = useRef<any>(null);
+  const dropdownRef = useRef<any>(null);
 
+  // Close dropdown when clicking outside
   useEffect(() => {
-    const toggle = (e: any) => {
-      if (e.target !== inputRef.current) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target) &&
+        !inputRef.current.contains(e.target)
+      ) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener("click", toggle);
-    return () => document.removeEventListener("click", toggle);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const selectOption = (option: any) => {
     setQuery("");
     handleChange(option[label]);
-    setIsOpen(false);
+    setIsOpen(false); // Close dropdown on selection
   };
 
   const getDisplayValue = () => {
@@ -48,8 +54,12 @@ const SearchableDropdown = ({
     return options; // If filtering is disabled, return all options
   };
 
+  const toggleDropdown = () => {
+    setIsOpen((prev) => !prev);
+  };
+
   return (
-    <div className="relative w-full md:w-1/2">
+    <div className="relative w-full md:w-1/2" ref={dropdownRef}>
       <div className="flex items-center border border-gray-300 rounded px-1 focus-within:ring-2 focus-within:ring-green-500 transition duration-150 ease-in-out">
         {/* Input Field */}
         <input
@@ -63,14 +73,14 @@ const SearchableDropdown = ({
             handleChange(null);
             setIsOpen(true); // Open dropdown when typing
           }}
-          onClick={() => setIsOpen(!isOpen)} // Toggle dropdown on input click
+          onClick={() => setIsOpen(true)} // Open dropdown on input click
         />
         {/* Dropdown Arrow */}
         <div
           className={`ml-2 cursor-pointer transform transition-transform ${
             isOpen ? "rotate-180" : ""
           }`}
-          onClick={() => setIsOpen(!isOpen)} // Toggle dropdown on arrow click
+          onClick={toggleDropdown} // Toggle dropdown on arrow click
         >
           <IoIosArrowDown />
         </div>
