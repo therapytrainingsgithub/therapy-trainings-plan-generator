@@ -44,10 +44,14 @@ const Header = () => {
     router.push("/settings");
   };
 
+  const goToHome = () => {
+    router.push("/");
+  };
+
   return (
     <main>
       <div className="flex justify-between items-center py-5 px-5">
-        <div>
+        <div className="cursor-pointer" onClick={goToHome}>
           <img src="./images/logo.png" alt="logo" />
         </div>
         <div className="relative" ref={dropdownRef}>
