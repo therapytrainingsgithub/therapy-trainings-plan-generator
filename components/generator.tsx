@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useAppContext } from "../app/context/appContext";
 import SearchableDropdown from "./SearchableDropdown";
+import { toast, ToastContainer } from "react-toastify"; // Importing toast
+import "react-toastify/dist/ReactToastify.css"; // Importing CSS for toast notifications
 
 interface Goal {
   goal: string;
@@ -51,10 +53,10 @@ const Generator: React.FC = () => {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
-        console.log(data);
         setDisorders(data);
       } catch (error) {
         console.log(error);
+        toast.error("Failed to fetch disorders. Please try again.");
       }
     };
 
@@ -82,6 +84,9 @@ const Generator: React.FC = () => {
   }, [selectedApproach, selectedDisorder]);
 
   const handleSymptomToggle = (symptom: string) => {
+    setSelectedApproach("");
+    setSelectedGoals([]);
+    setSelectedObjectives([]);
     setSelectedSymptoms((prevSymptoms) =>
       prevSymptoms.includes(symptom)
         ? prevSymptoms.filter((s) => s !== symptom)
@@ -89,13 +94,8 @@ const Generator: React.FC = () => {
     );
   };
 
-  const handleApproachSelect = (selectedOption: string) => {
-    setSelectedApproach(selectedOption);
-    setAllObjectives([]);
-    setSelectedObjectives([]);
-  };
-
   const handleGoalSelect = (goal: Goal) => {
+    setSelectedObjectives([]);
     setSelectedGoals((prev) => {
       const updatedGoals = prev.includes(goal.goal)
         ? prev.filter((g) => g !== goal.goal)
@@ -223,6 +223,7 @@ const Generator: React.FC = () => {
 
   return (
     <main className="space-y-5 flex justify-center">
+      <ToastContainer /> {/* Add ToastContainer to the component */}
       <div className="bg-white p-6 rounded-md shadow-lg w-[70%]">
         <div className="mb-4 flex flex-col space-y-1">
           <label className="font-bold">Disorders</label>
@@ -231,9 +232,13 @@ const Generator: React.FC = () => {
             label="name"
             id="disorder"
             selectedVal={selectedDisorder}
-            handleChange={(selectedOption: any) =>
-              setSelectedDisorder(selectedOption)
-            }
+            handleChange={(selectedOption: any) => {
+              setSelectedDisorder(selectedOption);
+              setSelectedSymptoms([]);
+              setSelectedApproach("");
+              setSelectedGoals([]);
+              setSelectedObjectives([]);
+            }}
             filterEnabled={true}
             placeholder="Select a Disorder"
           />
@@ -276,9 +281,11 @@ const Generator: React.FC = () => {
               label="name"
               id="approach"
               selectedVal={selectedApproach}
-              handleChange={(selectedOption: any) =>
-                setSelectedApproach(selectedOption)
-              }
+              handleChange={(selectedOption: any) => {
+                setSelectedApproach(selectedOption);
+                setSelectedGoals([]);
+                setSelectedObjectives([]);
+              }}
               filterEnabled={true} // Enable search
               placeholder="Select an Approach"
             />
