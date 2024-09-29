@@ -4,12 +4,13 @@ import { login } from "./action";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // Importing eye icons
+import { toast, ToastContainer } from "react-toastify"; // Importing toast
+import "react-toastify/dist/ReactToastify.css"; // Importing CSS for toast notifications
 
 const Page = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
@@ -23,7 +24,6 @@ const Page = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setErrorMessage(null);
 
     try {
       const result = await login(email, password);
@@ -39,14 +39,14 @@ const Page = () => {
       }
     } catch (error: any) {
       console.error("Login failed:", error);
-      setErrorMessage(error.message || "Login failed. Please try again.");
-    } finally {
+      toast.error(error.message || "Login failed. Please try again.");
       setLoading(false);
     }
   };
 
   return (
     <main className="relative py-5 px-10 space-y-10 bg-[#f5f5f5] h-screen flex justify-center items-center">
+      <ToastContainer /> {/* Add ToastContainer to the component */}
       <div className="bg-white p-10 rounded-md border shadow-lg w-full">
         <div className="flex justify-center">
           <img
@@ -100,10 +100,6 @@ const Page = () => {
                     {/* Toggle icon */}
                   </button>
                 </div>
-
-                {errorMessage && (
-                  <div className="text-red-500 text-sm">{errorMessage}</div>
-                )}
 
                 {loading ? (
                   <div className="flex justify-center items-center">
