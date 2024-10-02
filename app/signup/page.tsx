@@ -1,46 +1,35 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { login } from "./action";
+import React, { useState } from "react";
+import { signup } from "./action";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import Link from "next/link";
+import { toast, ToastContainer } from "react-toastify"; // Importing toast
+import "react-toastify/dist/ReactToastify.css"; // Importing CSS for toast notifications
+import { FaEye, FaEyeSlash } from "react-icons/fa"; // Importing eye icons
+import Link from "next/link"; // Import Link
 
-const Page = () => {
+const SignupPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
   const router = useRouter();
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      router.push("/");
-    }
-  }, [isLoggedIn, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const result = await login(email, password);
+      const result = await signup(email, password);
 
       if (result) {
-        const { data: sessionData } = await supabase.auth.getSession();
-
-        if (sessionData?.session) {
-          setIsLoggedIn(true);
-        } else {
-          throw new Error("Session not established after login");
-        }
+        toast.success("Signup successful! Redirecting to login...");
+        setTimeout(() => {
+          router.push("/login");
+        }, 2000); // Redirect after 2 seconds
       }
     } catch (error: any) {
-      console.error("Login failed:", error);
-      toast.error(error.message || "Login failed. Please try again.");
+      console.error("Signup failed:", error);
+      toast.error(error.message || "Signup failed. Please try again.");
       setLoading(false);
     }
   };
@@ -85,7 +74,7 @@ const Page = () => {
                   <input
                     className="rounded-md px-5 py-2 border-2 w-full"
                     placeholder="****************"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? "text" : "password"} // Toggle between text and password type
                     id="password"
                     name="password"
                     value={password}
@@ -94,10 +83,11 @@ const Page = () => {
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowPassword(!showPassword)} // Toggle showPassword state
                     className="absolute right-3 top-10 focus:outline-none"
                   >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}{" "}
+                    {/* Toggle icon */}
                   </button>
                 </div>
 
@@ -118,16 +108,15 @@ const Page = () => {
                       type="submit"
                       className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d] w-full"
                     >
-                      Log In 
+                      Signup
                     </button>
                   </div>
                 )}
               </form>
-
               <div className="mt-4 text-center">
-                Don't have an account?{" "}
-                <Link href="/signup" className="text-[#709d50]">
-                  Sign up
+                Already have an account?{" "}
+                <Link href="/login" className="text-[#709d50]">
+                  Back to Login
                 </Link>
               </div>
             </div>
@@ -138,4 +127,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default SignupPage;
