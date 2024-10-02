@@ -13,27 +13,7 @@ export async function signup(email: string, password: string) {
       throw new Error(signupError.message);
     }
 
-    const userId = signupData?.user?.id;
-    if (!userId) {
-      throw new Error("User ID not found after signup.");
-    }
-
-    const { data: goalsData, error: goalsError } = await supabase
-      .from("goals")
-      .insert([
-        {
-          user_Id: userId,
-          clinical_Hours: 4000,
-          supervision_Hours: 100,
-        },
-      ])
-      .select();
-
-    if (goalsError) {
-      throw new Error(`Error inserting goals: ${goalsError.message}`);
-    }
-
-    return { signupData, goalsData };
+    return { signupData };
   } catch (error: any) {
     console.error("Error during signup and goal creation:", error);
     throw error;
