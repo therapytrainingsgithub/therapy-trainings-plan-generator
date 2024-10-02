@@ -59,7 +59,7 @@ const Page = () => {
         <div className="relative py-8 px-5 rounded-xl flex flex-col items-center space-y-10">
           <div className="relative z-10">
             <h1 className="font-bold text-3xl mb-5 text-center">
-              Clinical Supervision Tracker
+              Treatment Plan Generator
             </h1>
             <div className="w-full">
               <form
@@ -118,7 +118,7 @@ const Page = () => {
                       type="submit"
                       className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d] w-full"
                     >
-                      Log In 
+                      Log In
                     </button>
                   </div>
                 )}
