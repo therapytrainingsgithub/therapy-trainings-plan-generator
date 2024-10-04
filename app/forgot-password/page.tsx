@@ -1,17 +1,17 @@
-"use client"; // Ensure this page runs as a client component
+"use client";
 
-import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation"; // client-side routing and search params
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation"; // Import for reading URL params
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "react-hot-toast";
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordForm() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const searchParams = useSearchParams(); // Client-side params
+  const searchParams = useSearchParams(); // Used to get the access_token from the URL
   const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -23,24 +23,24 @@ export default function ForgotPasswordPage() {
       return;
     }
 
+    // Get the access_token and email from the URL
+    const accessToken = searchParams.get("access_token");
+    const email = searchParams.get("email");
+
+    if (!accessToken || !email) {
+      toast.error("Reset token or email is missing in the URL");
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Get the reset token and email from the URL
-      const accessToken = searchParams.get("access_token");
-      const email = searchParams.get("email");
-
-      if (!accessToken || !email) {
-        toast.error("Reset token or email is missing in the URL");
-        setLoading(false);
-        return;
-      }
-
-      // Step 1: Verify the OTP (reset token in the URL)
+      // Verify the OTP (the reset token sent to the user)
       const { error: otpError } = await supabase.auth.verifyOtp({
-        email: email, // User's email
-        token: accessToken, // Token sent in the reset email
-        type: "recovery", // Specify the type as 'recovery' for password reset
+        token: accessToken,
+        type: "recovery",
+        email: email,
       });
 
       if (otpError) {
@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
         return;
       }
 
-      // Step 2: Update the user's password after OTP verification
+      // Once OTP is verified, update the user's password
       const { error: updateError } = await supabase.auth.updateUser({
         password: newPassword,
       });
@@ -69,51 +69,56 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <Suspense fallback={<p>Loading...</p>}>
-      {" "}
-      {/* Wrap the component in Suspense */}
-      <div className="h-[100vh] flex flex-col justify-center items-center p-4">
-        <h1 className="text-2xl font-bold mb-6">Reset Password</h1>
+    <div className="h-[100vh] flex flex-col justify-center items-center p-4">
+      <h1 className="text-2xl font-bold mb-6">Reset Password</h1>
 
-        <form
-          onSubmit={handleSubmit}
-          className="w-full max-w-md flex flex-col gap-4"
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-md flex flex-col gap-4"
+      >
+        <div>
+          <label htmlFor="new-password" className="block mb-2">
+            New Password:
+          </label>
+          <Input
+            type="password"
+            id="new-password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            required
+          />
+        </div>
+
+        <div>
+          <label htmlFor="confirm-password" className="block mb-2">
+            Confirm Password:
+          </label>
+          <Input
+            type="password"
+            id="confirm-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+        </div>
+
+        <Button
+          type="submit"
+          loading={loading}
+          className="bg-[#709D51] hover:bg-[#50822D] w-full"
         >
-          <div>
-            <label htmlFor="new-password" className="block mb-2">
-              New Password:
-            </label>
-            <Input
-              type="password"
-              id="new-password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-            />
-          </div>
+          Reset Password
+        </Button>
+      </form>
+    </div>
+  );
+}
 
-          <div>
-            <label htmlFor="confirm-password" className="block mb-2">
-              Confirm Password:
-            </label>
-            <Input
-              type="password"
-              id="confirm-password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-          </div>
-
-          <Button
-            type="submit"
-            loading={loading}
-            className="bg-[#709D51] hover:bg-[#50822D] w-full"
-          >
-            Reset Password
-          </Button>
-        </form>
-      </div>
+// Wrap in Suspense for SSR compatibility
+export default function ForgotPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ForgotPasswordForm />
     </Suspense>
   );
 }
