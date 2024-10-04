@@ -23,6 +23,7 @@ function HomeContent() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Simulating a data fetch with a timeout
         await new Promise((resolve) => setTimeout(resolve, 2000));
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -37,6 +38,7 @@ function HomeContent() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
+        {/* You can replace this spinner with a CSS framework-based spinner or a custom loader */}
         <div
           className="spinner-border animate-spin inline-block w-12 h-12 border-4 rounded-full"
           role="status"

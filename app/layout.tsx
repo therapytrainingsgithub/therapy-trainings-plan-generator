@@ -1,16 +1,13 @@
-import type { Metadata } from "next";
 import "./globals.css";
-import { Roboto } from "@next/font/google";
+import { Toaster } from "react-hot-toast";
 
-const roboto = Roboto({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
-
-export const metadata: Metadata = {
-  title: "Treatment Plan Generator",
-  description: "App to generate treatment plan",
+export const metadata = {
+  title: "Quiz Game",
+  description: "An quiz game app as an extension of Therapy Training.",
 };
+interface RootLayoutProps {
+  children: React.ReactNode;
+}
 
 export default function RootLayout({
   children,
@@ -19,7 +16,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={roboto.className}>{children}</body>
+      <head>
+        {/* Favicon link */}
+        <link rel="icon" href="/favicon.png" />
+        <meta name="description" content={metadata.description} />
+        <title>{metadata.title}</title>
+      </head>
+      <body className="flex min-h-screen w-full flex-col">
+        {children}
+        <Toaster />{" "}
+        {/* Add the Toaster here to ensure toast notifications are displayed */}
+      </body>
     </html>
   );
 }

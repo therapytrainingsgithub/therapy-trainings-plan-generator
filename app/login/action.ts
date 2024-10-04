@@ -1,19 +1,105 @@
+"use server";
+
 import { supabase } from "@/lib/supabase";
 
-export async function login(email: string, password: string) {
+export async function login(formData: FormData) {
+  const creds = {
+    email: formData.get("email") as string,
+    password: formData.get("password") as string,
+  };
+
+  const { error, data } = await supabase.auth.signInWithPassword(creds);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { data };
+}
+
+export async function signup(formData: FormData) {
+
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const username = formData.get("username") as string;
+
+  // Check if the username is already taken in the profiles table
+  const { data: existingUsername, error: usernameCheckError } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("username", username)
+    .single();
+
+  if (existingUsername) {
+    return { error: "Username already taken, please try another one" };
+  }
+
+  if (usernameCheckError && usernameCheckError.code !== "PGRST116") {
+    return { error: "An error occurred while checking username availability" };
+  }
+
+  // Proceed with the signup if the username is not taken
+  const { error: signupError, data: signupData } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: "/login", // Correct URL for the live domain
+      data: {
+        username, // Store username in user_metadata (optional)
+      },
+    },
+  });
+
+  if (signupError) {
+    return { error: signupError.message };
+  }
+
+  if (!signupData || !signupData.user) {
+    return { error: "An error occurred during signup. No user data returned." };
+  }
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error: profileError } = await supabase.from("profiles").insert({
+      id: signupData.user.id,
+      username: username,
       email: email,
-      password: password,
     });
 
-    if (error) {
-      throw new Error(error.message); // Throw an error for login failures
+    if (profileError) {
+      console.log(profileError)
+      return { error: "An error occurred while creating the user profile" };
     }
-
-    return data; // Return the login data
-  } catch (error: any) {
-    console.error("Error during login:", error);
-    throw error; // Re-throw error to the caller
+  } catch (err) {
+    return {
+      error: "An unexpected error occurred while creating the user profile",
+    };
   }
+
+  return { data: signupData };
+}
+
+export async function forgotPassword(email: string) {
+
+  const { data: userProfile, error: profileError } = await supabase
+    .from("profiles")
+    .select("email")
+    .eq("email", email)
+    .single();
+
+  if (!userProfile) {
+    return { error: "No account found with this email address." };
+  }
+
+  if (profileError) {
+    return { error: "An error occurred while checking the email address." };
+  }
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: "/forgot-password", // Correct URL for the live domain
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { data: "Reset password link has been sent to your email." };
 }

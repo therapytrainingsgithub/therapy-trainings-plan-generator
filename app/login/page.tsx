@@ -1,141 +1,212 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { login } from "./action";
-import { useRouter } from "next/navigation";
+
+import { Suspense, useEffect, useState, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { login, forgotPassword } from "./action";
+import { Button } from "@/components/ui/button";
+import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import Image from "next/image";
+import { toast } from "react-hot-toast"; // Import react-hot-toast
 
-const Page = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>(""); // Using the same email for login and forgot password
+  const toastShownRef = useRef(false); // Ref to track if the toast has been shown
 
+  // Check if the user is already logged in and redirect if so
   useEffect(() => {
-    if (isLoggedIn) {
-      router.push("/");
-    }
-  }, [isLoggedIn, router]);
+    const checkSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+      if (session) {
+        router.push("/quiz");
+      }
+    };
+
+    checkSession();
+  }, [router]);
+
+  // Check if redirected from signup page and show success message as toast (only once)
+  useEffect(() => {
+    const signupSuccess = searchParams.get("signup");
+
+    // Only show the toast once
+    if (signupSuccess === "success" && !toastShownRef.current) {
+      toast.success(
+        "Thank you for registering! Please check your email to confirm your address and activate your account.",
+        {
+          position: "top-right",
+          duration: 4000,
+          style: {
+            background: "#48bb78", // Success background color (green)
+            color: "#fff", // Text color
+          },
+        }
+      );
+
+      // Set the ref to true to prevent multiple toasts
+      toastShownRef.current = true;
+    }
+  }, [searchParams]);
+
+  // Handle login form submission
+  const handleSubmit = async (event: React.FormEvent) => {
+    setLoading(true);
+    event.preventDefault();
+    const formData = new FormData(event.target as HTMLFormElement);
+
+    const result = await login(formData);
+    if (result?.error) {
+      setLoading(false);
+      toast.error(result.error, {
+        position: "top-right",
+        duration: 4000,
+        style: {
+          background: "#f56565", // Error background color (red)
+          color: "#fff",
+        },
+      }); // Show error message using toast
+    } else if (result?.data) {
+      toast.success("Logged in successfully!", {
+        position: "top-right",
+        duration: 4000,
+        style: {
+          background: "#48bb78",
+          color: "#fff",
+        },
+      }); // Show success message using toast
+      router.push("/quiz"); // Redirect to quiz page after login
+    }
+  };
+
+  // Handle forgot password form submission, using the same email
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error("Please enter your email address first.", {
+        position: "top-right",
+        duration: 4000,
+        style: {
+          background: "#f56565",
+          color: "#fff",
+        },
+      }); // Show error if email is empty
+      return;
+    }
+
     setLoading(true);
 
-    try {
-      const result = await login(email, password);
-
-      if (result) {
-        const { data: sessionData } = await supabase.auth.getSession();
-
-        if (sessionData?.session) {
-          setIsLoggedIn(true);
-        } else {
-          throw new Error("Session not established after login");
-        }
-      }
-    } catch (error: any) {
-      console.error("Login failed:", error);
-      toast.error(error.message || "Login failed. Please try again.");
+    const result = await forgotPassword(email);
+    if (result?.error) {
+      toast.error(result.error, {
+        position: "top-right",
+        duration: 4000,
+        style: {
+          background: "#f56565",
+          color: "#fff",
+        },
+      }); // Show error using toast
+      setLoading(false);
+    } else {
+      toast.success("Reset Password Link has been sent to your email.", {
+        position: "top-right",
+        duration: 4000,
+        style: {
+          background: "#48bb78",
+          color: "#fff",
+        },
+      });
       setLoading(false);
     }
   };
 
   return (
-    <main className="relative py-5 px-10 space-y-10 bg-[#f5f5f5] h-screen flex justify-center items-center">
-      <ToastContainer />
-      <div className="bg-white p-10 rounded-md border shadow-lg w-full">
-        <div className="flex justify-center">
-          <img
-            src="https://earnextramiles.s3.ap-south-1.amazonaws.com/uat/logo_1726732771800.png"
-            alt="logo"
-          />
-        </div>
+    <div className="h-[100vh] flex flex-col justify-center items-center p-4 overflow-y-null">
+      {/* Add logo outside the box */}
+      <Image
+        src="/logo.png"
+        alt="Therapy Trainings Logo"
+        width={250}
+        height={80}
+        className="mb-8"
+      />
+      <h1 className="text-[#191919] text-[22px] sm:text-[28px] font-roboto font-bold mb-8 leading-none">
+        Treatment Plan Generator
+      </h1>
 
-        <div className="relative py-8 px-5 rounded-xl flex flex-col items-center space-y-10">
-          <div className="relative z-10">
-            <h1 className="font-bold text-3xl mb-5 text-center">
-              Treatment Plan Generator
-            </h1>
-            <div className="w-full">
-              <form
-                onSubmit={handleSubmit}
-                className="flex flex-col items-center space-y-6"
-              >
-                <div className="flex flex-col space-y-1 w-full">
-                  <label htmlFor="email">Email</label>
-                  <input
-                    className="rounded-md px-5 py-2 border-2"
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="username@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="flex flex-col space-y-1 w-full relative">
-                  <label htmlFor="password">Password</label>
-                  <input
-                    className="rounded-md px-5 py-2 border-2 w-full"
-                    placeholder="****************"
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    name="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-10 focus:outline-none"
-                  >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}
-                  </button>
-                </div>
-
-                {loading ? (
-                  <div className="flex justify-center items-center">
-                    <div
-                      className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-black motion-reduce:animate-[spin_1.5s_linear_infinite]"
-                      role="status"
-                    >
-                      <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
-                        Loading...
-                      </span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="w-full">
-                    <button
-                      type="submit"
-                      className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d] w-full"
-                    >
-                      Log In
-                    </button>
-                  </div>
-                )}
-              </form>
-
-              <div className="mt-4 text-center">
-                Don't have an account?{" "}
-                <Link href="/signup" className="text-[#709d50]">
-                  Sign up
-                </Link>
-              </div>
+      {/* The login box */}
+      <Card className="w-full max-w-sm p-4 flex-grow-0">
+        <CardHeader>
+          <CardTitle className="text-2xl">Login</CardTitle>
+        </CardHeader>
+        <CardFooter>
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col w-full gap-4 items-center"
+          >
+            <div className="flex flex-col w-full gap-2">
+              <label className="text-sm font-medium" htmlFor="email">
+                Email:
+              </label>
+              <Input
+                type="email"
+                id="email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)} // Capture email for both login and reset
+                className="w-full"
+                required
+              />
             </div>
-          </div>
-        </div>
-      </div>
-    </main>
-  );
-};
+            <div className="flex flex-col w-full gap-2">
+              <label className="text-sm font-medium" htmlFor="password">
+                Password:
+              </label>
+              <Input
+                type="password"
+                id="password"
+                name="password"
+                className="w-full"
+                required
+              />
+              <p
+                onClick={handleForgotPassword} // Call reset password directly
+                className="mt-2 text-left text-sm text-blue-600 cursor-pointer"
+              >
+                Forgot your password?
+              </p>
+            </div>
+            <Button
+              loading={loading}
+              formAction={login}
+              className="bg-[#709D51] hover:bg-[#50822D] w-full text-white"
+            >
+              Log In
+            </Button>
 
-export default Page;
+            <Link href={"/signup"}>
+              <p className="mt-4 text-center text-sm text-blue-600">
+                Don't have an account? Sign Up.
+              </p>
+            </Link>
+          </form>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}
+
+// Wrap in Suspense for SSR compatibility
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginForm />
+    </Suspense>
+  );
+}

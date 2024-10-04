@@ -1,130 +1,148 @@
 "use client";
-import React, { useState } from "react";
-import { signup } from "./action";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import Link from "next/link";
+import { signup } from "../login/action";
 import { useRouter } from "next/navigation";
-import { toast, ToastContainer } from "react-toastify"; // Importing toast
-import "react-toastify/dist/ReactToastify.css"; // Importing CSS for toast notifications
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // Importing eye icons
-import Link from "next/link"; // Import Link
+import Image from "next/image";
 
-const SignupPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+export default function SignupPage() {
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [username, setUsername] = useState<string>(""); // State to track the username input
+  const [usernameError, setUsernameError] = useState<string | null>(null); // To display username length error
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Handle username input change and validate length
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputUsername = e.target.value;
+    setUsername(inputUsername);
+
+    // Validate username length (max 5 characters)
+    if (inputUsername.length > 10) {
+      setUsernameError("Username cannot be more than 10 letters.");
+    } else {
+      setUsernameError(null); // Clear the error if username length is valid
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
     setLoading(true);
+    event.preventDefault();
 
-    try {
-      const result = await signup(email, password);
+    if (username.length > 10) {
+      setLoading(false);
+      setUsernameError("Username cannot be more than 10 letters.");
+      return;
+    }
 
-      if (result) {
-        toast.success("Signup successful! Redirecting to login...");
-        setTimeout(() => {
-          router.push("/login");
-        }, 2000); // Redirect after 2 seconds
+    const formData = new FormData(event.target as HTMLFormElement);
+    const result = await signup(formData);
+    if (result?.error) {
+      if (result.error.includes("Email not confirmed")) {
+        router.push("/login?signup=success");
+        setError(null);
+      } else {
+        setError(result.error);
       }
-    } catch (error: any) {
-      console.error("Signup failed:", error);
-      toast.error(error.message || "Signup failed. Please try again.");
+      setLoading(false);
+    } else {
+      router.push("/login?signup=success");
       setLoading(false);
     }
   };
 
   return (
-    <main className="relative py-5 px-10 space-y-10 bg-[#f5f5f5] h-screen flex justify-center items-center">
-      <ToastContainer />
-      <div className="bg-white p-10 rounded-md border shadow-lg w-full">
-        <div className="flex justify-center">
-          <img
-            src="https://earnextramiles.s3.ap-south-1.amazonaws.com/uat/logo_1726732771800.png"
-            alt="logo"
-          />
-        </div>
-
-        <div className="relative py-8 px-5 rounded-xl flex flex-col items-center space-y-10">
-          <div className="relative z-10">
-            <h1 className="font-bold text-3xl mb-5 text-center">
-              Treatment Plan Generator
-            </h1>
-            <div className="w-full">
-              <form
-                onSubmit={handleSubmit}
-                className="flex flex-col items-center space-y-6"
-              >
-                <div className="flex flex-col space-y-1 w-full">
-                  <label htmlFor="email">Email</label>
-                  <input
-                    className="rounded-md px-5 py-2 border-2"
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="username@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="flex flex-col space-y-1 w-full relative">
-                  <label htmlFor="password">Password</label>
-                  <input
-                    className="rounded-md px-5 py-2 border-2 w-full"
-                    placeholder="****************"
-                    type={showPassword ? "text" : "password"} // Toggle between text and password type
-                    id="password"
-                    name="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)} // Toggle showPassword state
-                    className="absolute right-3 top-10 focus:outline-none"
-                  >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}{" "}
-                    {/* Toggle icon */}
-                  </button>
-                </div>
-
-                {loading ? (
-                  <div className="flex justify-center items-center">
-                    <div
-                      className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-black motion-reduce:animate-[spin_1.5s_linear_infinite]"
-                      role="status"
-                    >
-                      <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
-                        Loading...
-                      </span>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="w-full">
-                    <button
-                      type="submit"
-                      className="px-4 py-2 rounded-md text-white bg-[#709d50] hover:bg-[#50822d] w-full"
-                    >
-                      Signup
-                    </button>
-                  </div>
-                )}
-              </form>
-              <div className="mt-4 text-center">
-                Already have an account?{" "}
-                <Link href="/login" className="text-[#709d50]">
-                  Back to Login
-                </Link>
-              </div>
+    <div
+      className="h-[100vh] flex flex-col justify-center items-center p-4 overflow-y-null" // Prevent scrolling on mobile
+    >
+      {/* Add logo outside the box */}
+      <Image
+        src="/logo.png"
+        alt="Therapy Trainings Logo"
+        width={250}
+        height={80}
+        className="mb-8"
+      />
+      <h1 className="text-[#191919] text-[22px] sm:text-[28px] font-roboto font-bold mb-8 leading-none">
+        Treatment Plan Generator
+      </h1>
+      {/* The signup box */}
+      <Card className="w-full max-w-sm p-4 flex-grow-0">
+        <CardHeader>
+          <CardTitle className="text-2xl">Sign Up</CardTitle>
+        </CardHeader>
+        <CardFooter>
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col w-full gap-4 items-center"
+          >
+            <div className="flex flex-col w-full gap-2">
+              <label className="text-sm font-medium" htmlFor="username">
+                Username:
+              </label>
+              <Input
+                type="text"
+                id="username"
+                name="username"
+                value={username}
+                onChange={handleUsernameChange}
+                className="w-full"
+                required
+              />
+              {/* Display username length error */}
+              {usernameError && (
+                <p className="text-sm text-red-600">{usernameError}</p>
+              )}
             </div>
-          </div>
-        </div>
-      </div>
-    </main>
-  );
-};
+            <div className="flex flex-col w-full gap-2">
+              <label className="text-sm font-medium" htmlFor="email">
+                Email:
+              </label>
+              <Input
+                type="email"
+                id="email"
+                name="email"
+                className="w-full"
+                required
+              />
+            </div>
+            <div className="flex flex-col w-full gap-2">
+              <label className="text-sm font-medium" htmlFor="password">
+                Password:
+              </label>
+              <Input
+                type="password"
+                id="password"
+                name="password"
+                className="w-full"
+                required
+              />
+            </div>
+            <Button
+              loading={loading}
+              formAction={signup}
+              className="bg-[#709D51] hover:bg-[#50822D] w-full text-white"
+              disabled={!!usernameError || loading} // Disable button if username is invalid
+            >
+              Sign Up
+            </Button>
 
-export default SignupPage;
+            <Link href={"/login"}>
+              <p className="mt-4 text-center text-sm text-blue-600">
+                Already have an account? Log In.
+              </p>
+            </Link>
+
+            {error && (
+              <p className="mt-4 text-center text-sm text-red-600">{error}</p>
+            )}
+          </form>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}
