@@ -50,6 +50,7 @@ export default function SignupPage() {
       }
       setLoading(false);
     } else {
+      // If no error and data is there, just redirect
       router.push("/login?signup=success");
       setLoading(false);
     }
@@ -125,7 +126,7 @@ export default function SignupPage() {
             <Button
               loading={loading}
               formAction={signup}
-              className="bg-[#709D51] hover:bg-[#50822D] w-full text-white"
+              className="bg-[#709D51] hover:bg-[#50822D] w-full"
               disabled={!!usernameError || loading} // Disable button if username is invalid
             >
               Sign Up

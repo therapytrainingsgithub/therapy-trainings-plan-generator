@@ -26,14 +26,13 @@ function LoginForm() {
       } = await supabase.auth.getSession();
 
       if (session) {
-        router.push("/quiz");
+        router.push("/");
       }
     };
 
     checkSession();
   }, [router]);
 
-  // Check if redirected from signup page and show success message as toast (only once)
   useEffect(() => {
     const signupSuccess = searchParams.get("signup");
 
@@ -82,7 +81,7 @@ function LoginForm() {
           color: "#fff",
         },
       }); // Show success message using toast
-      router.push("/quiz"); // Redirect to quiz page after login
+      router.push("/"); // Redirect to quiz page after login
     }
   };
 
