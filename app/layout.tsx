@@ -2,8 +2,9 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
 export const metadata = {
-  title: "Quiz Game",
-  description: "An quiz game app as an extension of Therapy Training.",
+  title: "Treatment Plan Generator",
+  description:
+    "A Plan Generator App which is an extension of Therapy Training.",
 };
 interface RootLayoutProps {
   children: React.ReactNode;
