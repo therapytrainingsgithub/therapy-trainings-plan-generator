@@ -9,34 +9,51 @@ import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import Image from "next/image";
-import { toast } from "react-hot-toast"; // Import react-hot-toast
+import { toast } from "react-hot-toast";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>(""); // Using the same email for login and forgot password
-  const toastShownRef = useRef(false); // Ref to track if the toast has been shown
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [email, setEmail] = useState<string>("");
+  const toastShownRef = useRef(false);
 
-  // Check if the user is already logged in and redirect if so
   useEffect(() => {
     const checkSession = async () => {
       const {
         data: { session },
+        error,
       } = await supabase.auth.getSession();
 
+      console.log("Session in frontend:", session); // Debugging session
+
+      if (error) {
+        console.error("Error fetching session:", error.message);
+      }
+
       if (session) {
-        router.push("/");
+        console.log("User is logged in, redirecting to home...");
+        setIsLoggedIn(true);
+        router.push("/"); // Redirect to home after session is available
+      } else {
+        console.log("No session found.");
       }
     };
 
     checkSession();
-  }, [router]);
+  }, [router, isLoggedIn]);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      console.log("Logged in, redirecting to home...");
+      router.push("/");
+    }
+  }, [isLoggedIn, router]);
 
   useEffect(() => {
     const signupSuccess = searchParams.get("signup");
 
-    // Only show the toast once
     if (signupSuccess === "success" && !toastShownRef.current) {
       toast.success(
         "Thank you for registering! Please check your email to confirm your address and activate your account.",
@@ -44,18 +61,16 @@ function LoginForm() {
           position: "top-right",
           duration: 4000,
           style: {
-            background: "#48bb78", // Success background color (green)
-            color: "#fff", // Text color
+            background: "#48bb78",
+            color: "#fff",
           },
         }
       );
 
-      // Set the ref to true to prevent multiple toasts
       toastShownRef.current = true;
     }
   }, [searchParams]);
 
-  // Handle login form submission
   const handleSubmit = async (event: React.FormEvent) => {
     setLoading(true);
     event.preventDefault();
@@ -68,10 +83,10 @@ function LoginForm() {
         position: "top-right",
         duration: 4000,
         style: {
-          background: "#f56565", // Error background color (red)
+          background: "#f56565",
           color: "#fff",
         },
-      }); // Show error message using toast
+      });
     } else if (result?.data) {
       toast.success("Logged in successfully!", {
         position: "top-right",
@@ -80,12 +95,12 @@ function LoginForm() {
           background: "#48bb78",
           color: "#fff",
         },
-      }); // Show success message using toast
-      router.push("/"); // Redirect to quiz page after login
+      });
+      setIsLoggedIn(true);
+      router.push("/"); // Ensure this is called after setting state
     }
   };
 
-  // Handle forgot password form submission, using the same email
   const handleForgotPassword = async () => {
     if (!email) {
       toast.error("Please enter your email address first.", {
@@ -95,7 +110,7 @@ function LoginForm() {
           background: "#f56565",
           color: "#fff",
         },
-      }); // Show error if email is empty
+      });
       return;
     }
 
@@ -110,7 +125,7 @@ function LoginForm() {
           background: "#f56565",
           color: "#fff",
         },
-      }); // Show error using toast
+      });
       setLoading(false);
     } else {
       toast.success("Reset Password Link has been sent to your email.", {
@@ -127,7 +142,6 @@ function LoginForm() {
 
   return (
     <div className="h-[100vh] flex flex-col justify-center items-center p-4 overflow-y-null">
-      {/* Add logo outside the box */}
       <Image
         src="/images/logo.png"
         alt="Therapy Trainings Logo"
@@ -139,7 +153,6 @@ function LoginForm() {
         Treatment Plan Generator
       </h1>
 
-      {/* The login box */}
       <Card className="w-full max-w-sm p-4 flex-grow-0">
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
@@ -158,7 +171,7 @@ function LoginForm() {
                 id="email"
                 name="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)} // Capture email for both login and reset
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full"
                 required
               />
@@ -175,7 +188,7 @@ function LoginForm() {
                 required
               />
               <p
-                onClick={handleForgotPassword} // Call reset password directly
+                onClick={handleForgotPassword}
                 className="mt-2 text-left text-sm text-blue-600 cursor-pointer"
               >
                 Forgot your password?
@@ -201,7 +214,6 @@ function LoginForm() {
   );
 }
 
-// Wrap in Suspense for SSR compatibility
 export default function LoginPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>

@@ -15,17 +15,21 @@ export async function middleware(req: NextRequest) {
   // Get the current pathname from the request
   const { pathname } = req.nextUrl;
 
+  console.log("Middleware executed:", pathname);
+  console.log("Session data in middleware:", session);
+
   // If there is no session and the user is trying to access a protected route, redirect to login
   if (!session && pathname !== "/login" && pathname !== "/signup") {
     const loginUrl = new URL("/login", req.url);
+    console.log("Redirecting to login...");
     return NextResponse.redirect(loginUrl);
   }
 
+  console.log("Access granted:", pathname);
   // Allow access to login and signup pages without authentication
   return res;
 }
 
-// Define the routes that should be matched for middleware
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|images|favicon.ico).*)"], // Apply to all routes except API, static files, and favicon
+  matcher: ["/((?!api|_next/static|_next/image|images|favicon.ico).*)"],
 };
