@@ -131,7 +131,7 @@ function LoginForm() {
     <div className="h-[100vh] flex flex-col justify-center items-center p-4 overflow-y-null">
       {/* Add logo outside the box */}
       <Image
-        src="/logo.png"
+        src="/images/logo.png"
         alt="Therapy Trainings Logo"
         width={250}
         height={80}

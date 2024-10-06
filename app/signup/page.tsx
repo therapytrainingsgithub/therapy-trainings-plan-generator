@@ -62,7 +62,7 @@ export default function SignupPage() {
     >
       {/* Add logo outside the box */}
       <Image
-        src="/logo.png"
+        src="/images/logo.png"
         alt="Therapy Trainings Logo"
         width={250}
         height={80}
