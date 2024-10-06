@@ -1,7 +1,7 @@
 import React from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import "react-toastify/dist/ReactToastify.css";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -38,7 +38,9 @@ const ChangePasswordForm = () => {
     }
 
     toast.success("Password updated successfully!");
-    router.push("/");
+    setTimeout(() => {
+      router.push("/");
+    }, 3000);
     setSubmitting(false);
   };
 
