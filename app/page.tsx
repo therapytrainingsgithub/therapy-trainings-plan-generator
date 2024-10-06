@@ -5,6 +5,7 @@ import { ToastContainer } from "react-toastify";
 import Header from "@/components/header";
 import TreatmentPlanGenerator from "@/components/treatmentPlanGenerator";
 import { AppProvider } from "./context/appContext";
+import Treatment from "./treatment/page";
 
 export default function Home() {
   return (
@@ -51,12 +52,7 @@ function HomeContent() {
 
   return (
     <>
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <main className="flex-grow py-5 px-10 space-y-10 bg-[#f5f5f5] font-roboto">
-          <TreatmentPlanGenerator />
-        </main>
-      </div>
+      <Treatment />
     </>
   );
 }

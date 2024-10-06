@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/utils/client";
 import { useRouter } from "next/navigation";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null); // Explicitly type the ref
   const router = useRouter();
+  const supabase = createClient();
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -52,7 +53,7 @@ const Header = () => {
     <main>
       <div className="flex justify-between items-center py-5 px-5">
         <div className="cursor-pointer" onClick={goToHome}>
-          <img src="./images/logo.png" alt="logo" />
+          <img height={80} width={250} src="./images/logo.png" alt="logo" />
         </div>
         <div className="relative" ref={dropdownRef}>
           <img

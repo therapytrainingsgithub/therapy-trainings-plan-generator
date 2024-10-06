@@ -2,75 +2,62 @@
 
 import { Suspense, useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/utils/client";
 import { login, forgotPassword } from "./action";
 import { Button } from "@/components/ui/button";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import Image from "next/image";
-import { toast } from "react-hot-toast";
+import { toast } from "react-hot-toast"; // Import react-hot-toast
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState<boolean>(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [email, setEmail] = useState<string>("");
-  const toastShownRef = useRef(false);
+  const [email, setEmail] = useState<string>(""); // Using the same email for login and forgot password
+  const toastShownRef = useRef(false); // Ref to track if the toast has been shown
 
   useEffect(() => {
     const checkSession = async () => {
+      const supabase = createClient();
       const {
         data: { session },
-        error,
       } = await supabase.auth.getSession();
 
-      console.log("Session in frontend:", session); // Debugging session
-
-      if (error) {
-        console.error("Error fetching session:", error.message);
-      }
-
       if (session) {
-        console.log("User is logged in, redirecting to home...");
-        setIsLoggedIn(true);
-        router.push("/"); // Redirect to home after session is available
-      } else {
-        console.log("No session found.");
+        // Only redirect if the user is on the login page and they are already logged in
+        router.push("/"); // Example: redirect to a protected route if the session exists
       }
     };
 
     checkSession();
-  }, [router, isLoggedIn]);
+  }, [router]); // Added router as a dependency to avoid potential issues
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      console.log("Logged in, redirecting to home...");
-      router.push("/");
-    }
-  }, [isLoggedIn, router]);
-
+  // Check if redirected from signup page and show success message as toast (only once)
   useEffect(() => {
     const signupSuccess = searchParams.get("signup");
 
+    // Only show the toast once
     if (signupSuccess === "success" && !toastShownRef.current) {
       toast.success(
         "Thank you for registering! Please check your email to confirm your address and activate your account.",
         {
           position: "top-right",
-          duration: 4000,
+          duration: 60000,
           style: {
-            background: "#48bb78",
-            color: "#fff",
+            background: "#48bb78", // Success background color (green)
+            color: "#fff", // Text color
           },
         }
       );
 
+      // Set the ref to true to prevent multiple toasts
       toastShownRef.current = true;
     }
   }, [searchParams]);
 
+  // Handle login form submission
   const handleSubmit = async (event: React.FormEvent) => {
     setLoading(true);
     event.preventDefault();
@@ -81,12 +68,12 @@ function LoginForm() {
       setLoading(false);
       toast.error(result.error, {
         position: "top-right",
-        duration: 4000,
+        duration: 30000,
         style: {
-          background: "#f56565",
+          background: "#f56565", // Error background color (red)
           color: "#fff",
         },
-      });
+      }); // Show error message using toast
     } else if (result?.data) {
       toast.success("Logged in successfully!", {
         position: "top-right",
@@ -95,12 +82,12 @@ function LoginForm() {
           background: "#48bb78",
           color: "#fff",
         },
-      });
-      setIsLoggedIn(true);
-      router.push("/"); // Ensure this is called after setting state
+      }); // Show success message using toast
+      router.push("/"); // Redirect to quiz page after login
     }
   };
 
+  // Handle forgot password form submission, using the same email
   const handleForgotPassword = async () => {
     if (!email) {
       toast.error("Please enter your email address first.", {
@@ -110,7 +97,7 @@ function LoginForm() {
           background: "#f56565",
           color: "#fff",
         },
-      });
+      }); // Show error if email is empty
       return;
     }
 
@@ -125,12 +112,12 @@ function LoginForm() {
           background: "#f56565",
           color: "#fff",
         },
-      });
+      }); // Show error using toast
       setLoading(false);
     } else {
       toast.success("Reset Password Link has been sent to your email.", {
         position: "top-right",
-        duration: 4000,
+        duration: 30000,
         style: {
           background: "#48bb78",
           color: "#fff",
@@ -142,8 +129,9 @@ function LoginForm() {
 
   return (
     <div className="h-[100vh] flex flex-col justify-center items-center p-4 overflow-y-null">
+      {/* Add logo outside the box */}
       <Image
-        src="/images/logo.png"
+        src="/logo.png"
         alt="Therapy Trainings Logo"
         width={250}
         height={80}
@@ -153,6 +141,7 @@ function LoginForm() {
         Treatment Plan Generator
       </h1>
 
+      {/* The login box */}
       <Card className="w-full max-w-sm p-4 flex-grow-0">
         <CardHeader>
           <CardTitle className="text-2xl">Login</CardTitle>
@@ -171,7 +160,7 @@ function LoginForm() {
                 id="email"
                 name="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)} // Capture email for both login and reset
                 className="w-full"
                 required
               />
@@ -188,7 +177,7 @@ function LoginForm() {
                 required
               />
               <p
-                onClick={handleForgotPassword}
+                onClick={handleForgotPassword} // Call reset password directly
                 className="mt-2 text-left text-sm text-blue-600 cursor-pointer"
               >
                 Forgot your password?
@@ -214,6 +203,7 @@ function LoginForm() {
   );
 }
 
+// Wrap in Suspense for SSR compatibility
 export default function LoginPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>

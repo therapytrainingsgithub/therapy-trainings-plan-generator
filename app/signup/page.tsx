@@ -5,7 +5,7 @@ import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import Link from "next/link";
-import { signup } from "../login/action";
+import { signup } from "./action";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -62,7 +62,7 @@ export default function SignupPage() {
     >
       {/* Add logo outside the box */}
       <Image
-        src="/images/logo.png"
+        src="/logo.png"
         alt="Therapy Trainings Logo"
         width={250}
         height={80}
@@ -127,7 +127,7 @@ export default function SignupPage() {
               loading={loading}
               formAction={signup}
               className="bg-[#709D51] hover:bg-[#50822D] w-full text-white"
-              disabled={!!usernameError || loading}
+              disabled={!!usernameError || loading} // Disable button if username is invalid
             >
               Sign Up
             </Button>
