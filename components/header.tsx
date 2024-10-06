@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { createClient } from "@/utils/client";
+import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
 const Header = () => {

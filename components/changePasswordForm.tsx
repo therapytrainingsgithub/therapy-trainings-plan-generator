@@ -1,5 +1,5 @@
 import React from "react";
-import { supabaseAdmin } from "@/lib/supabase";
+import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -8,6 +8,7 @@ import * as Yup from "yup";
 
 const ChangePasswordForm = () => {
   const router = useRouter();
+  const supabase = createClient();
 
   // Validation schema for password
   const validationSchema = Yup.object().shape({
@@ -25,8 +26,8 @@ const ChangePasswordForm = () => {
   ) => {
     setSubmitting(true);
 
-    // Update the user's password
-    const { error } = await supabaseAdmin.auth.updateUser({
+    // Update the user's password using the client-side Supabase instance
+    const { error } = await supabase.auth.updateUser({
       password: values.password,
     });
 
