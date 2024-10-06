@@ -1,5 +1,5 @@
 import React from "react";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -26,7 +26,7 @@ const ChangePasswordForm = () => {
     setSubmitting(true);
 
     // Update the user's password
-    const { error } = await supabase.auth.updateUser({
+    const { error } = await supabaseAdmin.auth.updateUser({
       password: values.password,
     });
 

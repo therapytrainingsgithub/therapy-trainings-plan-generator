@@ -38,7 +38,7 @@ function SettingsContent() {
           </button>
           <span>{">"}</span>
           <button onClick={handleSettingsClick} className="text-gray-600">
-            Settings
+            Edit Profile
           </button>
         </div>
 
