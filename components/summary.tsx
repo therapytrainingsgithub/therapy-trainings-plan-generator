@@ -36,20 +36,13 @@ const Summary = () => {
       // Create a new jsPDF instance
       const doc = new jsPDF();
 
-      // Add logo (assuming you have a base64 or URL for the logo)
-      const logoUrl = "/images/logo.png"; // Update with your logo URL or base64 string
-      const logoWidth = 30; // Adjust width for the logo (double the height)
-      const logoHeight = 8; // Adjust height for the logo
-      const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2; // Center logo
-      doc.addImage(logoUrl, "PNG", logoX, 10, logoWidth, logoHeight); // Position the logo
-
       // Add heading
       doc.setFontSize(16);
       doc.setFont("helvetica", "bold");
       const heading = "Treatment Plan";
       const headingX =
         (doc.internal.pageSize.getWidth() - doc.getTextWidth(heading)) / 2; // Center heading
-      doc.text(heading, headingX, logoHeight + 20); // Position heading below the logo
+      doc.text(heading, headingX, 20); // Position heading at the top of the page
 
       // Set font size for content
       doc.setFontSize(12);
@@ -74,7 +67,7 @@ const Summary = () => {
       ];
 
       // Starting position for the content
-      let yPos = logoHeight + 40; // Start below the heading
+      let yPos = 40; // Start below the heading
 
       // Add each key-value pair to the PDF
       content.forEach((item) => {

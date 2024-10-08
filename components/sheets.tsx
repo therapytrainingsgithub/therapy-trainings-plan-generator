@@ -94,8 +94,8 @@ const Sheets = () => {
 
       // Add logo
       const logoUrl = "/images/logo.png";
-      const logoWidth = 50;
-      const logoHeight = 13;
+      const logoWidth = 60;
+      const logoHeight = 20;
       const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2;
       doc.addImage(logoUrl, "PNG", logoX, 10, logoWidth, logoHeight);
 
@@ -173,8 +173,8 @@ const Sheets = () => {
 
       // Add logo
       const logoUrl = "/images/logo.png"; // Update with your logo URL or base64 string
-      const logoWidth = 30; // Adjust width for the logo
-      const logoHeight = 8; // Adjust height for the logo
+      const logoWidth = 60; // Adjust width for the logo
+      const logoHeight = 20; // Adjust height for the logo
       const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2; // Center logo
       doc.addImage(logoUrl, "PNG", logoX, 10, logoWidth, logoHeight); // Position the logo
 
@@ -419,7 +419,7 @@ const Sheets = () => {
                     onClick={handleGenerateWorksheetIdeas}
                     className="p-2 bg-[#50822d] text-white rounded"
                   >
-                    Generate Worksheet Ideas
+                    Generate Worksheet
                   </button>
 
                   {/* Conditionally display 'Please Select Idea' message */}
@@ -489,7 +489,7 @@ const Sheets = () => {
                     onClick={handleRefreshWorksheetIdeas}
                     className="p-2 bg-[#709d50] text-white rounded-md hover:bg-[#50822d] transition-colors duration-200"
                   >
-                    Refresh Ideas
+                    Refresh
                   </button>
                   <button
                     onClick={handleCopyWorksheet}
@@ -515,7 +515,7 @@ const Sheets = () => {
                   onClick={handleGenerateHomeworkIdeas}
                   className="p-2 bg-[#50822d] text-white rounded"
                 >
-                  Generate Homework Ideas
+                  Generate Homework
                 </button>
 
                 {homeworkLoading && (
@@ -548,7 +548,7 @@ const Sheets = () => {
                         onClick={handleRefreshHomeworkIdeas}
                         className="p-2 bg-[#709d50] text-white rounded-md hover:bg-[#50822d] transition-colors duration-200"
                       >
-                        Refresh Ideas
+                        Refresh
                       </button>
                       <button
                         onClick={handleCopyHomework}

@@ -99,7 +99,7 @@ const Header = () => {
         </div>
         <div className="relative z-10">
           <h1 className="text-[32px] font-bold font-roboto">
-            Therapy Worksheet Generator
+            Therapy Worksheet & Treatment Planner
           </h1>
         </div>
       </div>
