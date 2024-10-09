@@ -69,7 +69,7 @@ export default function SignupPage() {
         className="mb-8"
       />
       <h1 className="text-[#191919] text-[22px] sm:text-[28px] font-roboto font-bold mb-8 leading-none">
-        Treatment Plan Generator
+        Therapy Worksheet & Treatment Planner
       </h1>
       {/* The signup box */}
       <Card className="w-full max-w-sm p-4 flex-grow-0">
