@@ -53,7 +53,14 @@ const Generator: React.FC = () => {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
-        setDisorders(data);
+
+        // Sort disorders alphabetically by the 'name' field
+        const sortedData = data.sort((a: any, b: any) => {
+          return a.name.localeCompare(b.name);
+        });
+
+        // Save the sorted data in setDisorders
+        setDisorders(sortedData);
       } catch (error) {
         console.log(error);
         toast.error("Failed to fetch disorders. Please try again.");

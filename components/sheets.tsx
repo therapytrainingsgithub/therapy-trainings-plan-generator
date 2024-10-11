@@ -11,8 +11,9 @@ const Sheets = () => {
   const [worksheetLoading, setWorksheetLoading] = useState<boolean>(false);
   const [homeworkLoading, setHomeworkLoading] = useState<boolean>(false);
   const [worksheetIdeas, setWorksheetIdeas] = useState<WorksheetIdea[]>([]);
-  const [selectedWorksheet, setSelectedWorksheet] =
-    useState<WorksheetIdea | any>(null);
+  const [selectedWorksheet, setSelectedWorksheet] = useState<
+    WorksheetIdea | any
+  >(null);
   const [generatedWorksheet, setGeneratedWorksheet] = useState<string>("");
   const [homeworkIdeas, setHomeworkIdeas] = useState<string[]>([]);
   const {
@@ -99,20 +100,15 @@ const Sheets = () => {
       const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2;
       doc.addImage(logoUrl, "PNG", logoX, 10, logoWidth, logoHeight);
 
-      // Add heading
-      doc.setFontSize(16);
-      doc.setFont("helvetica", "bold");
-      const heading = "Worksheet";
-      const headingX =
-        (doc.internal.pageSize.getWidth() - doc.getTextWidth(heading)) / 2;
-      doc.text(heading, headingX, logoHeight + 20);
+      // Removed heading section
+      // Adjust content layout below
 
       // Set font size for content
       doc.setFontSize(12);
       doc.setFont("helvetica", "normal");
 
       // Define table layout
-      const startY = logoHeight + 30; // Start position for the table
+      const startY = logoHeight + 20; // Adjusted start position for content (moved up by 10 units)
       let yPos = startY;
       const margin = 10;
       const columnWidth = (doc.internal.pageSize.getWidth() - margin * 2) / 2; // Two columns with margin
@@ -471,16 +467,18 @@ const Sheets = () => {
                   {/* Changed to solid for visibility */}
                   <table className="min-w-full border-collapse border border-gray-300">
                     <tbody>
-                      {selectedWorksheet.content.map((task: any, index: any) => (
-                        <tr key={index}>
-                          <td className="border border-gray-300 p-2">
-                            {task.header}
-                          </td>
-                          <td className="border border-gray-300 p-2">
-                            {task.description}
-                          </td>
-                        </tr>
-                      ))}
+                      {selectedWorksheet.content.map(
+                        (task: any, index: any) => (
+                          <tr key={index}>
+                            <td className="border border-gray-300 p-2">
+                              {task.header}
+                            </td>
+                            <td className="border border-gray-300 p-2">
+                              {task.description}
+                            </td>
+                          </tr>
+                        )
+                      )}
                     </tbody>
                   </table>
                 </div>
