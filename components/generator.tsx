@@ -16,9 +16,11 @@ interface Disorder {
 }
 
 const treatmentApproaches: string[] = [
-  "Cognitive Behavioral Therapy (CBT)",
-  "Interpersonal Therapy (IPT)",
-  "Medication management",
+      " Cognitive Behavioral Therapy (CBT)",
+      "Psychodynamic Therapy",
+      "Dialectical Behavior Therapy (DBT)",
+      "Mindfulness-Based Therapies",
+      "Interpersonal Therapy (IPT)",
 ];
 
 const Generator: React.FC = () => {

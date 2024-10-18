@@ -59,7 +59,7 @@ const SearchableDropdown = ({
   };
 
   return (
-    <div className="relative w-full md:w-1/2" ref={dropdownRef}>
+    <div className="relative w-full md:w-1/2 mb-10" ref={dropdownRef}>
       <div className="flex items-center border border-gray-300 rounded px-1 focus-within:ring-2 focus-within:ring-green-500 transition duration-150 ease-in-out">
         {/* Input Field */}
         <input
@@ -88,7 +88,7 @@ const SearchableDropdown = ({
 
       {/* Dropdown options */}
       {isOpen && (
-        <div className="absolute z-10 w-full mt-1 max-h-48 overflow-y-auto bg-white border border-gray-300 rounded shadow-lg">
+        <div className="absolute z-10 w-full mt-1 max-h-48 overflow-y-auto bg-white border border-gray-300 rounded shadow-lg ">
           {getOptions().map((option: any, index: any) => (
             <div
               key={`${id}-${index}`}

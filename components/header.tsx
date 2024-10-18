@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import Link from "next/dist/client/link";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -52,9 +53,15 @@ const Header = () => {
   return (
     <main>
       <div className="flex justify-between items-center py-5 px-5">
-        <div className="cursor-pointer" onClick={goToHome}>
-          <img height={80} width={250} src="./images/logo.png" alt="logo" />
-        </div>
+      <Link href="https://www.therapytrainings.com" target="_blank" rel="noopener noreferrer">
+              <img
+                height={80}
+                width={250}
+                src="./images/logo.png"
+                alt="logo"
+                className="cursor-pointer"
+              />
+            </Link>
         <div className="relative" ref={dropdownRef}>
           <img
             src="./images/profile.png"

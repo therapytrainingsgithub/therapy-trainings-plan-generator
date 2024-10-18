@@ -92,76 +92,82 @@ const Sheets = () => {
       selectedWorksheet.content.length > 0
     ) {
       const doc = new jsPDF();
-
-      // Add logo
+  
+      // Add logo (optional)
       const logoUrl = "/images/logo.png";
       const logoWidth = 60;
       const logoHeight = 20;
       const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2;
       doc.addImage(logoUrl, "PNG", logoX, 10, logoWidth, logoHeight);
-
-      // Removed heading section
-      // Adjust content layout below
-
-      // Set font size for content
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "normal");
-
-      // Define table layout
-      const startY = logoHeight + 20; // Adjusted start position for content (moved up by 10 units)
-      let yPos = startY;
+  
+      // Fetch heading and subtitle from the backend (if available)
+  
+      // Starting Y position below the logo
+      let yPos = logoHeight + 30;
       const margin = 10;
-      const columnWidth = (doc.internal.pageSize.getWidth() - margin * 2) / 2; // Two columns with margin
-      const rowHeight = 60; // Total height for each entry (equal height for header and description)
+      const pageWidth = doc.internal.pageSize.getWidth() - margin * 2;
+  
+      // Add main title (fetched from backend)
+  
+      // Add underline (horizontal line) under the subtitle
 
-      // Loop through the worksheet content
+      // Move Y position down to start content
+      yPos += 10;
+  
+      // Now, proceed with content (as per the previous design)
       selectedWorksheet.content.forEach((task: any, index: any) => {
         // Check for page breaks
-        if (index % 4 === 0 && index !== 0) {
-          doc.addPage(); // Add a new page after every 4 rows
-          yPos = startY; // Reset Y position after page break
+        if (yPos + 60 > doc.internal.pageSize.getHeight()) {
+          doc.addPage(); // Add a new page if content exceeds page height
+          yPos = 20; // Reset Y position after page break
         }
-
-        // Draw the row with borders
-        doc.setDrawColor(0); // Black color for lines
-        doc.rect(margin, yPos, columnWidth, rowHeight); // Left cell for header
-        doc.rect(margin + columnWidth, yPos, columnWidth, rowHeight); // Right cell for description
-
-        // Add header text (occupying part of the header cell)
+  
+        // Draw green header with straight lower border (no rounded bottom corners)
+        const headerHeight = 10;
+        doc.setFillColor(87, 167, 108); // Green color
+        doc.rect(margin, yPos, pageWidth, headerHeight, "F"); // Green header with no rounded bottom
+  
+        // Add white header text
         doc.setFont("helvetica", "bold");
-        doc.text(task.header, margin + 5, yPos + 15); // Header text
-
-        // Add description text (with extra empty lines)
+        doc.setTextColor(255, 255, 255); // White text
+        doc.text(task.header, margin + 5, yPos + 7);
+  
+        // Move down for content box
+        yPos += headerHeight;
+  
+        // Draw content box with straight top border (to align with the green header) and rounded bottom corners
+        const boxHeight = 25 + (task.points ? task.points.length * 6 : 0); // Adjust box height based on content
+        doc.setDrawColor(87, 167, 108); // Border color matching header
+        doc.rect(margin, yPos, pageWidth, boxHeight);
+        
         doc.setFont("helvetica", "normal");
-        const splitDescription = doc.splitTextToSize(
-          task.description,
-          columnWidth - 10 // Adjust for padding
-        );
-        doc.text(splitDescription, margin + columnWidth + 5, yPos + 15); // Description text
-
-        // Add empty lines inside the description cell
-        const emptyLines = 2; // Number of empty lines you want to include
-        const lineHeight = 10; // Height of each empty line
-        for (let i = 0; i < emptyLines; i++) {
-          const lineY = yPos + 15 + (splitDescription.length + i) * lineHeight;
-          doc.text("", margin + columnWidth + 5, lineY); // Add empty lines
+        doc.setTextColor(0, 0, 0); 
+        const splitDescription = doc.splitTextToSize(task.description, pageWidth - 10); // Adjust text width
+        doc.text(splitDescription, margin + 5, yPos + 5); // Add description text
+  
+        yPos += 15; // Move down for bullet points
+        if (task.points && task.points.length > 0) {
+          const columnWidth = pageWidth / task.points.length; // Equal spacing for bullet points
+          doc.setFont("helvetica", "italic");
+  
+          task.points.forEach((point: string, i: number) => {
+            const pointX = margin + i * columnWidth + 5;
+            doc.text(point, pointX, yPos);
+          });
         }
-
-        // Move down for the next entry
-        yPos += rowHeight; // Move Y position down for the next row
+  
+        yPos += 30; // Ensure spacing between sections to prevent overlap
       });
-
-      // Save the PDF with a filename
-      const fileName = selectedWorksheet.idea
-        .substring(0, 20)
-        .replace(/\s+/g, "_");
+  
+      const fileName = selectedWorksheet.idea.substring(0, 20).replace(/\s+/g, "_");
       doc.save(`${fileName}.pdf`);
     } else {
-      console.error(
-        "Invalid selectedWorksheet. Please select a valid worksheet."
-      );
+      console.error("Invalid selectedWorksheet. Please select a valid worksheet.");
     }
   };
+  
+  
+  
 
   const handleDownloadHomework = () => {
     if (homeworkIdeas && homeworkIdeas.length > 0) {
