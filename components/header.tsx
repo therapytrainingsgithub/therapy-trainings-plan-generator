@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null); // Explicitly type the ref
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const supabase = createClient();
 
@@ -17,25 +18,39 @@ const Header = () => {
     if (error) {
       console.log("Error logging out:", error.message);
     } else {
-      router.push("/login"); // Redirect the user to the login page after logout
+      router.push("/login");
     }
   };
 
-  // Close the dropdown when clicking outside
+  useEffect(() => {
+    const fetchUserEmail = async () => {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (error) {
+        console.log("Error fetching user session:", error.message);
+      } else if (session && session.user) {
+        setUserEmail(session.user.email ?? null);
+      }
+    };
+
+    fetchUserEmail();
+  }, [supabase]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
       ) {
-        setDropdownOpen(false); // Close the dropdown
+        setDropdownOpen(false);
       }
     };
 
-    // Add event listener when the component mounts
     document.addEventListener("mousedown", handleClickOutside);
 
-    // Clean up the event listener when the component unmounts
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -63,7 +78,14 @@ const Header = () => {
             onClick={toggleDropdown}
           />
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
+            <div className="absolute right-0 mt-2 min-w-[10rem] max-w-[16rem] bg-white rounded-md shadow-lg z-50">
+              <p
+                className="cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-200 truncate"
+                title={userEmail ?? undefined}
+              >
+                {userEmail ? userEmail : "User"}
+              </p>
+
               <button
                 onClick={goToSettings}
                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-200"
