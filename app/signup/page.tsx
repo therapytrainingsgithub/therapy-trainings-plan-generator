@@ -13,31 +13,10 @@ export default function SignupPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const [username, setUsername] = useState<string>(""); // State to track the username input
-  const [usernameError, setUsernameError] = useState<string | null>(null); // To display username length error
-
-  // Handle username input change and validate length
-  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputUsername = e.target.value;
-    setUsername(inputUsername);
-
-    // Validate username length (max 5 characters)
-    if (inputUsername.length > 10) {
-      setUsernameError("Username cannot be more than 10 letters.");
-    } else {
-      setUsernameError(null); // Clear the error if username length is valid
-    }
-  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     setLoading(true);
     event.preventDefault();
-
-    if (username.length > 10) {
-      setLoading(false);
-      setUsernameError("Username cannot be more than 10 letters.");
-      return;
-    }
 
     const formData = new FormData(event.target as HTMLFormElement);
     const result = await signup(formData);
@@ -82,24 +61,6 @@ export default function SignupPage() {
             className="flex flex-col w-full gap-4 items-center"
           >
             <div className="flex flex-col w-full gap-2">
-              <label className="text-sm font-medium" htmlFor="username">
-                Username:
-              </label>
-              <Input
-                type="text"
-                id="username"
-                name="username"
-                value={username}
-                onChange={handleUsernameChange}
-                className="w-full"
-                required
-              />
-              {/* Display username length error */}
-              {usernameError && (
-                <p className="text-sm text-red-600">{usernameError}</p>
-              )}
-            </div>
-            <div className="flex flex-col w-full gap-2">
               <label className="text-sm font-medium" htmlFor="email">
                 Email:
               </label>
@@ -127,7 +88,7 @@ export default function SignupPage() {
               loading={loading}
               formAction={signup}
               className="bg-[#709D51] hover:bg-[#50822D] w-full text-white"
-              disabled={!!usernameError || loading} // Disable button if username is invalid
+              disabled={loading} // Disable button while loading
             >
               Sign Up
             </Button>
