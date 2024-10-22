@@ -92,82 +92,97 @@ const Sheets = () => {
       selectedWorksheet.content.length > 0
     ) {
       const doc = new jsPDF();
-  
-      // Add logo (optional)
       const logoUrl = "/images/logo.png";
       const logoWidth = 60;
       const logoHeight = 20;
       const logoX = (doc.internal.pageSize.getWidth() - logoWidth) / 2;
       doc.addImage(logoUrl, "PNG", logoX, 10, logoWidth, logoHeight);
-  
-      // Fetch heading and subtitle from the backend (if available)
-  
-      // Starting Y position below the logo
-      let yPos = logoHeight + 30;
+      let yPos = logoHeight + 10;
       const margin = 10;
       const pageWidth = doc.internal.pageSize.getWidth() - margin * 2;
-  
-      // Add main title (fetched from backend)
-  
-      // Add underline (horizontal line) under the subtitle
-
-      // Move Y position down to start content
       yPos += 10;
   
-      // Now, proceed with content (as per the previous design)
-      selectedWorksheet.content.forEach((task: any, index: any) => {
-        // Check for page breaks
+      selectedWorksheet.content.forEach((task: any) => {
         if (yPos + 60 > doc.internal.pageSize.getHeight()) {
-          doc.addPage(); // Add a new page if content exceeds page height
-          yPos = 20; // Reset Y position after page break
+          doc.addPage();
+          yPos = 20;
         }
   
-        // Draw green header with straight lower border (no rounded bottom corners)
-        const headerHeight = 10;
-        doc.setFillColor(87, 167, 108); // Green color
-        doc.rect(margin, yPos, pageWidth, headerHeight, "F"); // Green header with no rounded bottom
+        const headerHeight = 12;
+        const cornerRadius = 5;
   
-        // Add white header text
+        // Draw the rounded top part of the header
+        doc.setFillColor(135, 181, 94);
+        doc.roundedRect(
+          margin,
+          yPos,
+          pageWidth,
+          headerHeight,
+          cornerRadius,
+          cornerRadius,
+          "F"
+        );
+  
+        // Draw the straight bottom part of the header
+        doc.setFillColor(135, 181, 94);
+        doc.rect(
+          margin,
+          yPos + headerHeight - cornerRadius, // Align with the bottom of the rounded rectangle
+          pageWidth,
+          cornerRadius, // Small rectangle to cover the square bottom part
+          "F"
+        );
+  
         doc.setFont("helvetica", "bold");
-        doc.setTextColor(255, 255, 255); // White text
+        doc.setFontSize(12);
+        doc.setTextColor(255, 255, 255);
         doc.text(task.header, margin + 5, yPos + 7);
   
-        // Move down for content box
         yPos += headerHeight;
   
-        // Draw content box with straight top border (to align with the green header) and rounded bottom corners
-        const boxHeight = 25 + (task.points ? task.points.length * 6 : 0); // Adjust box height based on content
-        doc.setDrawColor(87, 167, 108); // Border color matching header
-        doc.rect(margin, yPos, pageWidth, boxHeight);
-        
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(0, 0, 0); 
-        const splitDescription = doc.splitTextToSize(task.description, pageWidth - 10); // Adjust text width
-        doc.text(splitDescription, margin + 5, yPos + 5); // Add description text
+        const boxHeight = 40 + (task.points ? task.points.length * 6 : 0);
+        doc.setDrawColor(135, 181, 94);
+        doc.roundedRect(
+          margin,
+          yPos - 4,
+          pageWidth,
+          boxHeight,
+          cornerRadius,
+          cornerRadius,
+          "S" // Stroke for the content box
+        );
   
-        yPos += 15; // Move down for bullet points
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        const splitDescription = doc.splitTextToSize(
+          task.description,
+          pageWidth - 10
+        );
+        doc.text(splitDescription, margin + 5, yPos + 5);
+  
+        yPos += 15;
         if (task.points && task.points.length > 0) {
-          const columnWidth = pageWidth / task.points.length; // Equal spacing for bullet points
+          const columnWidth = pageWidth / task.points.length;
           doc.setFont("helvetica", "italic");
   
-          task.points.forEach((point: string, i: number) => {
+          task.points.forEach((point: any, i: any) => {
             const pointX = margin + i * columnWidth + 5;
             doc.text(point, pointX, yPos);
           });
         }
   
-        yPos += 30; // Ensure spacing between sections to prevent overlap
+        yPos += 30;
       });
   
-      const fileName = selectedWorksheet.idea.substring(0, 20).replace(/\s+/g, "_");
+      const fileName = selectedWorksheet.idea
+        .substring(0, 20)
+        .replace(/\s+/g, "_");
       doc.save(`${fileName}.pdf`);
     } else {
       console.error("Invalid selectedWorksheet. Please select a valid worksheet.");
     }
   };
-  
-  
-  
 
   const handleDownloadHomework = () => {
     if (homeworkIdeas && homeworkIdeas.length > 0) {
