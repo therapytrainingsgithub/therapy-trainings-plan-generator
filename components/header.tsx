@@ -68,23 +68,36 @@ const Header = () => {
   return (
     <main>
       <div className="flex justify-between items-center py-5 px-5">
-      <Link href="https://www.therapytrainings.com" target="_blank" rel="noopener noreferrer">
-              <img
-                height={80}
-                width={250}
-                src="./images/logo.png"
-                alt="logo"
-                className="cursor-pointer"
-              />
-            </Link>
-        <div className="relative" ref={dropdownRef}>
+        <Link
+          href="https://www.therapytrainings.com"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <img
-            src="./images/profile.png"
-            alt="profile"
-            className="cursor-pointer w-8 h-8"
-            onClick={toggleDropdown}
+            height={80}
+            width={250}
+            src="./images/logo.png"
+            alt="logo"
+            className="cursor-pointer"
           />
-          {dropdownOpen && (
+        </Link>
+        <div className="relative" ref={dropdownRef}>
+          {userEmail ? (
+            <img
+              src="./images/profile.png"
+              alt="profile"
+              className="cursor-pointer w-8 h-8"
+              onClick={toggleDropdown}
+            />
+          ) : (
+            <button
+              onClick={() => router.push("/login")}
+              className="p-2 bg-[#709d50] text-white rounded-md hover:bg-[#50822d] transition-colors duration-200"
+            >
+              Login / Sign Up
+            </button>
+          )}
+          {dropdownOpen && userEmail && (
             <div className="absolute right-0 mt-2 min-w-[10rem] max-w-[16rem] bg-white rounded-md shadow-lg z-50">
               <p
                 className="cursor-pointer block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-300 focus:outline-none focus:bg-gray-200 truncate"
