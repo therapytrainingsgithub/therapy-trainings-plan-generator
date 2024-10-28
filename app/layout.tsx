@@ -2,7 +2,7 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
 export const metadata = {
-  title: "Therapy Worksheet & Treatment Planner",
+  title: "Therapy Worksheets- Build instant therapy worksheets",
   description:
     "Create customizable therapy worksheets and treatment plans instantly. Built for therapists to streamline client documentation with professional, ready-to-use templates. Save time with our easy-to-use worksheet builder.",
 };
