@@ -69,6 +69,8 @@ const Sheets = () => {
   };
 
   const handleCopyWorksheet = () => {
+    console.log(generatedWorksheet)
+    console.log(selectedWorksheet)
     navigator.clipboard
       .writeText(generatedWorksheet)
       .then(() => alert("Worksheet copied to clipboard!"))
