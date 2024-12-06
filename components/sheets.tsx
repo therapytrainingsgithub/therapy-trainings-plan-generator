@@ -69,13 +69,19 @@ const Sheets = () => {
   };
 
   const handleCopyWorksheet = () => {
-    console.log(generatedWorksheet)
-    console.log(selectedWorksheet)
+    const { idea, content } = selectedWorksheet;
+    let formattedText = `Idea: ${idea}\n`;
+  
+    content.forEach((item: any, index:any) => {
+      formattedText += `\nHeader ${index + 1}: ${item.header}\nDescription: ${item.description}\n`;
+    });
+  
     navigator.clipboard
-      .writeText(generatedWorksheet)
+      .writeText(formattedText)
       .then(() => alert("Worksheet copied to clipboard!"))
       .catch((err) => console.error("Failed to copy worksheet: ", err));
   };
+  
 
   const handleCopyHomework = () => {
     // Join the array into a single string, separated by newlines or commas
